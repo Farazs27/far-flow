@@ -1,0 +1,38 @@
+name: Source checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  metadata-and-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Check shell and Python syntax
+        run: |
+          bash -n scripts/build.sh scripts/install.sh
+          python3 -m compileall -q scripts
+      - name: Validate JSON and property lists
+        run: |
+          python3 - <<'PYTHON'
+          import json, pathlib, plistlib
+          root = pathlib.Path('.')
+          files = sorted(root.rglob('*.json'))
+          for path in files:
+              if '.git' not in path.parts:
+                  json.loads(path.read_text())
+          for path in root.rglob('*.plist'):
+              plistlib.loads(path.read_bytes())
+          manifest = json.loads((root / 'FarFlow/Resources/ModelManifest.json').read_text())
+          for model in manifest:
+              assert len(model['revision']) == 40
+              for item in model['files']:
+                  assert len(item['sha256']) == 64
+                  assert item['bytes'] > 0
+          for name in ('far-flow-light.png', 'far-flow-dark.png', 'far-flow-icon.png'):
+              assert (root / 'docs/images' / name).stat().st_size > 0
+          print('Validated metadata, pinned model hashes and documentation images.')
+          PYTHON

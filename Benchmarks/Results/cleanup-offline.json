@@ -1,0 +1,72 @@
+{
+  "cases" : [
+    {
+      "input" : "Um, please send the updated proposal this afternoon.",
+      "language" : "en",
+      "method" : "Local AI",
+      "output" : "Please send the updated proposal this afternoon.",
+      "reviewSuggested" : false,
+      "seconds" : 1.6858700513839722
+    },
+    {
+      "input" : "Ehm, kun je het voorstel vanmiddag versturen?",
+      "language" : "nl",
+      "method" : "Local AI",
+      "output" : "Kun je het voorstel vanmiddag versturen?",
+      "reviewSuggested" : false,
+      "seconds" : 0.8082510232925415
+    },
+    {
+      "input" : "I do not want to cancel the appointment.",
+      "language" : "en",
+      "method" : "Local AI",
+      "output" : "I do not want to cancel the appointment.",
+      "reviewSuggested" : false,
+      "seconds" : 0.70227408409118652
+    },
+    {
+      "input" : "Ik wil de afspraak niet annuleren.",
+      "language" : "nl",
+      "method" : "Local AI",
+      "output" : "Ik wil de afspraak niet annuleren.",
+      "reviewSuggested" : false,
+      "seconds" : 0.71783006191253662
+    },
+    {
+      "input" : "The total is 20.50 euros. Send it to alex@example.com.",
+      "language" : "en",
+      "method" : "Local AI",
+      "output" : "The total is 20.50 euros. Send it to alex@example.com.",
+      "reviewSuggested" : false,
+      "seconds" : 1.0254340171813965
+    },
+    {
+      "input" : "Het bedrag is 20,50 euro. Stuur het naar alex@example.com.",
+      "language" : "nl",
+      "method" : "Local AI",
+      "output" : "Het bedrag is 20,50 euro. Stuur het naar alex@example.com.",
+      "reviewSuggested" : false,
+      "seconds" : 1.0709810256958008
+    },
+    {
+      "input" : "Let's meet at two, actually three.",
+      "language" : "en",
+      "method" : "Local AI",
+      "output" : "Let's meet at two, actually three.",
+      "reviewSuggested" : false,
+      "seconds" : 0.70517301559448242
+    },
+    {
+      "input" : "Laten we om twee uur afspreken, nee, om drie uur.",
+      "language" : "nl",
+      "method" : "Local AI",
+      "output" : "Laten we om twee uur afspreken, nee, om drie uur.",
+      "reviewSuggested" : false,
+      "seconds" : 1.0356260538101196
+    }
+  ],
+  "engine" : "Qwen3-4B-Instruct-2507-4bit",
+  "explicitTranslation" : "Can we reschedule the appointment to tomorrow?",
+  "loadSeconds" : 1.5481100082397461,
+  "peakResidentMB" : 714.640625
+}

@@ -1,0 +1,72 @@
+{
+  "cases" : [
+    {
+      "input" : "Um, please send the updated proposal this afternoon.",
+      "language" : "en",
+      "method" : "Fast local cleanup",
+      "output" : "please send the updated proposal this afternoon.",
+      "reviewSuggested" : false,
+      "seconds" : 0.0017690658569335938
+    },
+    {
+      "input" : "Ehm, kun je het voorstel vanmiddag versturen?",
+      "language" : "nl",
+      "method" : "Fast local cleanup",
+      "output" : "kun je het voorstel vanmiddag versturen?",
+      "reviewSuggested" : false,
+      "seconds" : 0.00048398971557617188
+    },
+    {
+      "input" : "I do not want to cancel the appointment.",
+      "language" : "en",
+      "method" : "Fast local cleanup",
+      "output" : "I do not want to cancel the appointment.",
+      "reviewSuggested" : false,
+      "seconds" : 0.00010001659393310547
+    },
+    {
+      "input" : "Ik wil de afspraak niet annuleren.",
+      "language" : "nl",
+      "method" : "Fast local cleanup",
+      "output" : "Ik wil de afspraak niet annuleren.",
+      "reviewSuggested" : false,
+      "seconds" : 7.7962875366210938e-05
+    },
+    {
+      "input" : "The total is 20.50 euros. Send it to alex@example.com.",
+      "language" : "en",
+      "method" : "Fast local cleanup",
+      "output" : "The total is 20.50 euros. Send it to alex@example.com.",
+      "reviewSuggested" : false,
+      "seconds" : 9.3102455139160156e-05
+    },
+    {
+      "input" : "Het bedrag is 20,50 euro. Stuur het naar alex@example.com.",
+      "language" : "nl",
+      "method" : "Fast local cleanup",
+      "output" : "Het bedrag is 20,50 euro. Stuur het naar alex@example.com.",
+      "reviewSuggested" : false,
+      "seconds" : 7.7962875366210938e-05
+    },
+    {
+      "input" : "Let's meet at two, actually three.",
+      "language" : "en",
+      "method" : "Fast local cleanup",
+      "output" : "Let's meet at three.",
+      "reviewSuggested" : false,
+      "seconds" : 7.2956085205078125e-05
+    },
+    {
+      "input" : "Laten we om twee uur afspreken, nee, om drie uur.",
+      "language" : "nl",
+      "method" : "Fast local cleanup",
+      "output" : "Laten we om drie uur afspreken.",
+      "reviewSuggested" : false,
+      "seconds" : 6.4015388488769531e-05
+    }
+  ],
+  "engine" : "Qwen3-4B-Instruct-2507-4bit",
+  "explicitTranslation" : "Not requested",
+  "loadSeconds" : 0,
+  "peakResidentMB" : 11.046875
+}

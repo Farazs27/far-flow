@@ -1,0 +1,110 @@
+[
+  {
+    "id": "EN01",
+    "language": "en",
+    "reference": "Can we move the design review to three tomorrow?",
+    "path": "Benchmarks/Fixtures/EN01.aiff"
+  },
+  {
+    "id": "EN02",
+    "language": "en",
+    "reference": "Let's meet at two, actually three.",
+    "path": "Benchmarks/Fixtures/EN02.aiff"
+  },
+  {
+    "id": "EN03",
+    "language": "en",
+    "reference": "Please send the updated proposal this afternoon.",
+    "path": "Benchmarks/Fixtures/EN03.aiff"
+  },
+  {
+    "id": "EN04",
+    "language": "en",
+    "reference": "I do not want to cancel the appointment.",
+    "path": "Benchmarks/Fixtures/EN04.aiff"
+  },
+  {
+    "id": "EN05",
+    "language": "en",
+    "reference": "The total is twenty euros and fifty cents.",
+    "path": "Benchmarks/Fixtures/EN05.aiff"
+  },
+  {
+    "id": "EN06",
+    "language": "en",
+    "reference": "First review the draft. Second check the links. Third send feedback.",
+    "path": "Benchmarks/Fixtures/EN06.aiff"
+  },
+  {
+    "id": "EN07",
+    "language": "en",
+    "reference": "Please add Far Flow to the agenda.",
+    "path": "Benchmarks/Fixtures/EN07.aiff"
+  },
+  {
+    "id": "EN08",
+    "language": "en",
+    "reference": "We should not ship this today, but we can test it.",
+    "path": "Benchmarks/Fixtures/EN08.aiff"
+  },
+  {
+    "id": "NL01",
+    "language": "nl",
+    "reference": "Kunnen we de afspraak naar morgen verplaatsen?",
+    "path": "Benchmarks/Fixtures/NL01.aiff"
+  },
+  {
+    "id": "NL02",
+    "language": "nl",
+    "reference": "Laten we om twee uur afspreken, nee, om drie uur.",
+    "path": "Benchmarks/Fixtures/NL02.aiff"
+  },
+  {
+    "id": "NL03",
+    "language": "nl",
+    "reference": "Kun je het voorstel vanmiddag versturen?",
+    "path": "Benchmarks/Fixtures/NL03.aiff"
+  },
+  {
+    "id": "NL04",
+    "language": "nl",
+    "reference": "Ik wil de afspraak niet annuleren.",
+    "path": "Benchmarks/Fixtures/NL04.aiff"
+  },
+  {
+    "id": "NL05",
+    "language": "nl",
+    "reference": "Het bedrag is twintig euro en vijftig cent.",
+    "path": "Benchmarks/Fixtures/NL05.aiff"
+  },
+  {
+    "id": "NL06",
+    "language": "nl",
+    "reference": "Controleer de tekst, bekijk de links en stuur feedback.",
+    "path": "Benchmarks/Fixtures/NL06.aiff"
+  },
+  {
+    "id": "NL07",
+    "language": "nl",
+    "reference": "Voeg Far Flow toe aan de agenda.",
+    "path": "Benchmarks/Fixtures/NL07.aiff"
+  },
+  {
+    "id": "NL08",
+    "language": "nl",
+    "reference": "We kunnen dit vandaag testen, maar nog niet publiceren.",
+    "path": "Benchmarks/Fixtures/NL08.aiff"
+  },
+  {
+    "id": "MX01",
+    "language": "auto",
+    "reference": "Kun je de pull request reviewen voor de meeting?",
+    "path": "Benchmarks/Fixtures/MX01.aiff"
+  },
+  {
+    "id": "MX02",
+    "language": "auto",
+    "reference": "Please check de laatste versie before we send it.",
+    "path": "Benchmarks/Fixtures/MX02.aiff"
+  }
+]

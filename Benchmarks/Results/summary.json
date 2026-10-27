@@ -1,0 +1,41 @@
+{
+  "parakeet-offline": {
+    "loadSeconds": 12.905855059623718,
+    "sessions": 18,
+    "medianSeconds": 0.0413745641708374,
+    "p95Seconds": 0.05257391929626465,
+    "rawWERByLanguage": {
+      "en": 0.0652281746031746,
+      "nl": 0.11383928571428571,
+      "auto": 0.16666666666666666
+    }
+  },
+  "whisper-offline": {
+    "loadSeconds": 1.9244309663772583,
+    "sessions": 18,
+    "medianSeconds": 0.4897494912147522,
+    "p95Seconds": 0.5422899723052979,
+    "rawWERByLanguage": {
+      "en": 0.1277281746031746,
+      "nl": 0.07291666666666666,
+      "auto": 0.5555555555555556
+    }
+  },
+  "stress-200-offline": {
+    "loadSeconds": 0.3514930009841919,
+    "sessions": 200,
+    "medianSeconds": 0.04205501079559326,
+    "p95Seconds": 0.05102396011352539,
+    "rawWERByLanguage": {
+      "en": 0.06501322751322751,
+      "nl": 0.11383928571428571,
+      "auto": 0.16666666666666666
+    }
+  },
+  "cleanup-offline-final": {
+    "loadSeconds": 2.0130609273910522,
+    "medianSeconds": 0.8806304335594177,
+    "maxSeconds": 1.3371490240097046,
+    "cases": 8
+  }
+}

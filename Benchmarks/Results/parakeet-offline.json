@@ -1,0 +1,152 @@
+{
+  "cases" : [
+    {
+      "id" : "EN01",
+      "language" : "en",
+      "reference" : "Can we move the design review to three tomorrow?",
+      "seconds" : 0.073215961456298828,
+      "transcript" : "Can we move the design review to 3 tomorrow?",
+      "wer" : 0.1111111111111111
+    },
+    {
+      "id" : "EN02",
+      "language" : "en",
+      "reference" : "Let's meet at two, actually three.",
+      "seconds" : 0.046419024467468262,
+      "transcript" : "Let's meet at two. Actually three.",
+      "wer" : 0
+    },
+    {
+      "id" : "EN03",
+      "language" : "en",
+      "reference" : "Please send the updated proposal this afternoon.",
+      "seconds" : 0.04552304744720459,
+      "transcript" : "Please send the updated proposal this afternoon.",
+      "wer" : 0
+    },
+    {
+      "id" : "EN04",
+      "language" : "en",
+      "reference" : "I do not want to cancel the appointment.",
+      "seconds" : 0.039792060852050781,
+      "transcript" : "I do not want to cancel the appointment.",
+      "wer" : 0
+    },
+    {
+      "id" : "EN05",
+      "language" : "en",
+      "reference" : "The total is twenty euros and fifty cents.",
+      "seconds" : 0.04468989372253418,
+      "transcript" : "The total is 20 euros and fifty cents.",
+      "wer" : 0.125
+    },
+    {
+      "id" : "EN06",
+      "language" : "en",
+      "reference" : "First review the draft. Second check the links. Third send feedback.",
+      "seconds" : 0.052573919296264648,
+      "transcript" : "First review the draft. Second, check the links. Third, send feedback.",
+      "wer" : 0
+    },
+    {
+      "id" : "EN07",
+      "language" : "en",
+      "reference" : "Please add Far Flow to the agenda.",
+      "seconds" : 0.040557980537414551,
+      "transcript" : "Please add Farflow to the agenda.",
+      "wer" : 0.2857142857142857
+    },
+    {
+      "id" : "EN08",
+      "language" : "en",
+      "reference" : "We should not ship this today, but we can test it.",
+      "seconds" : 0.041795969009399414,
+      "transcript" : "We should not ship this today, but we can test it.",
+      "wer" : 0
+    },
+    {
+      "id" : "NL01",
+      "language" : "nl",
+      "reference" : "Kunnen we de afspraak naar morgen verplaatsen?",
+      "seconds" : 0.041227102279663086,
+      "transcript" : "Kunnen we de afspraak naar morgen verplaatsen?",
+      "wer" : 0
+    },
+    {
+      "id" : "NL02",
+      "language" : "nl",
+      "reference" : "Laten we om twee uur afspreken, nee, om drie uur.",
+      "seconds" : 0.043790936470031738,
+      "transcript" : "Laten we om twee uur afspreken, nee, om drie uur.",
+      "wer" : 0
+    },
+    {
+      "id" : "NL03",
+      "language" : "nl",
+      "reference" : "Kun je het voorstel vanmiddag versturen?",
+      "seconds" : 0.039407014846801758,
+      "transcript" : "Kun je het voorstel vanmiddag versturen?",
+      "wer" : 0
+    },
+    {
+      "id" : "NL04",
+      "language" : "nl",
+      "reference" : "Ik wil de afspraak niet annuleren.",
+      "seconds" : 0.038485050201416016,
+      "transcript" : "Ik wil de afspraak niet annuleren.",
+      "wer" : 0
+    },
+    {
+      "id" : "NL05",
+      "language" : "nl",
+      "reference" : "Het bedrag is twintig euro en vijftig cent.",
+      "seconds" : 0.039901018142700195,
+      "transcript" : "Het bedrag is 20,50 euro.",
+      "wer" : 0.625
+    },
+    {
+      "id" : "NL06",
+      "language" : "nl",
+      "reference" : "Controleer de tekst, bekijk de links en stuur feedback.",
+      "seconds" : 0.045688986778259277,
+      "transcript" : "Controleer de tekst, bekijk de links en stuur feedback.",
+      "wer" : 0
+    },
+    {
+      "id" : "NL07",
+      "language" : "nl",
+      "reference" : "Voeg Far Flow toe aan de agenda.",
+      "seconds" : 0.039840102195739746,
+      "transcript" : "Voeg Farflow toe aan de agenda.",
+      "wer" : 0.2857142857142857
+    },
+    {
+      "id" : "NL08",
+      "language" : "nl",
+      "reference" : "We kunnen dit vandaag testen, maar nog niet publiceren.",
+      "seconds" : 0.040491938591003418,
+      "transcript" : "We kunnen dit vandaag testen, maar nog niet publiceren.",
+      "wer" : 0
+    },
+    {
+      "id" : "MX01",
+      "language" : "auto",
+      "reference" : "Kun je de pull request reviewen voor de meeting?",
+      "seconds" : 0.041522026062011719,
+      "transcript" : "Can je de pull request reviewen voor de meeting?",
+      "wer" : 0.1111111111111111
+    },
+    {
+      "id" : "MX02",
+      "language" : "auto",
+      "reference" : "Please check de laatste versie before we send it.",
+      "seconds" : 0.041072964668273926,
+      "transcript" : "Please check the last versie before we send it.",
+      "wer" : 0.22222222222222221
+    }
+  ],
+  "engine" : "speech",
+  "fixtureType" : "macOS synthetic speech; not user voice",
+  "loadSeconds" : 12.905855059623718,
+  "peakResidentMB" : 642.328125
+}
