@@ -5,7 +5,7 @@ Recorded 27 October 2026. Environment: Apple M4, 16 GB RAM, macOS 26.6.2, Xcode 
 ## Native build and tests
 
 - Native Release build and deep code-signature verification passed.
-- The unit suite passed **44 tests, zero failures**, covering bilingual text handling, protected spans, retention/persistence, checksums, short audio, cancellation-related rules, Fn gestures, media ownership and recording-bar geometry.
+- The unit suite passed **50 tests, zero failures**, covering bilingual text handling, protected spans, retention/persistence, checksums, short audio, cancellation-related rules, Fn gestures, media ownership and recording-bar geometry.
 - The UI-test target is included. XCTest could not enable UI automation on the development Mac, so the UI suite is not reported as passed.
 - Native live checks exercised hold/release, double-tap hands-free, insertion into ChatGPT, media pause/resume and bar dragging.
 - Closing the main window was exercised: the app/model-host PID and its owned media-helper PID exited.
@@ -54,3 +54,15 @@ The Whisper comparison requires an explicit `FarFlowBench prepare-whisper` downl
 - Longer daily-use pilot, route-change/reboot and low-memory testing.
 - Full accessibility audit and a separate live capture of the nonactivating panel.
 - Signed/notarized distribution and testing outside the development machine.
+
+## Version 0.2.1 microphone and installation repair
+
+Microphone startup now creates a fresh audio graph and installs its tap with the current native format, rather than forcing a cached format. Hardware availability is checked first, and an Objective-C boundary converts AVAudioEngine exceptions into recoverable errors. Failed starts reset the Fn gesture and hands-free state. The render callback uses the actual buffer sample rate and rejects callbacks from earlier captures. System-default capture preserves the engine’s aggregate input/output route when their clock rates differ. Configuration notifications recover only a stopped active graph, so delayed startup notifications do not stop healthy recordings.
+
+Fn hold/double-tap timing uses the physical event timestamp so microphone startup delays do not lengthen a short tap. An Objective-C exception regression and five capture lifecycle tests cover duplicate starts, 44.1/48 kHz consecutive sessions, failure/retry, late callbacks and configuration ownership.
+
+The installer stages a fresh bundle and preserves the previous one before replacement, avoiding merged obsolete resources. The active icon resource is named `FarFlowAppIcon`; version 0.2.1 uses build number 3.
+
+The final 0.2.1 build passed all 50 tests, including an Objective-C exception regression. Three consecutive real microphone sessions reached Listening / Hands-free and remained active until explicit cancellation, using a 48 kHz system microphone alongside a 44.1 kHz Bluetooth output. Code-signature verification passed after installation. Finder’s registered app icon was queried directly and matched the new ivory F on charcoal. The user confirmed the physical double-tap Fn behavior and refreshed icon after installation.
+
+Dictation start/end cues play at 12% of the sound object’s normal gain, without changing system volume.

@@ -19,7 +19,7 @@ func render(_ size:Int,to url:URL) {
     CGImageDestinationAddImage(dst,image,nil);CGImageDestinationFinalize(dst)
 }
 render(1024,to:master)
-let catalog=root.appendingPathComponent("FarFlow/Resources/Assets.xcassets/AppIconStudio.appiconset")
+let catalog=root.appendingPathComponent("FarFlow/Resources/Assets.xcassets/FarFlowAppIcon.appiconset")
 let data=try Data(contentsOf:catalog.appendingPathComponent("Contents.json"))
 let spec=try JSONSerialization.jsonObject(with:data) as! [String:Any]
 for image in spec["images"] as! [[String:Any]] {

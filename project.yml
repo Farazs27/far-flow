@@ -58,8 +58,8 @@ targets:
       properties:
         CFBundleDisplayName: Far Flow
         CFBundleName: Far Flow
-        CFBundleShortVersionString: 0.2.0
-        CFBundleVersion: '2'
+        CFBundleShortVersionString: 0.2.1
+        CFBundleVersion: '3'
         NSMicrophoneUsageDescription: Far Flow uses your microphone only while you dictate. Speech is processed on this Mac.
         NSPrincipalClass: NSApplication
         NSHighResolutionCapable: true
@@ -73,7 +73,8 @@ targets:
       base:
         PRODUCT_NAME: Far Flow
         PRODUCT_BUNDLE_IDENTIFIER: com.faraz.farflow
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIconStudio
+        ASSETCATALOG_COMPILER_APPICON_NAME: FarFlowAppIcon
+        SWIFT_OBJC_BRIDGING_HEADER: FarFlow/App/FarFlow-Bridging-Header.h
         LD_RUNPATH_SEARCH_PATHS: '$(inherited) @executable_path/../Frameworks'
     dependencies:
       - target: FarFlowCore
@@ -95,11 +96,12 @@ targets:
   FarFlowTests:
     type: bundle.unit-test
     platform: macOS
-    sources: [FarFlowTests, FarFlow/App/MediaPlaybackService.swift]
+    sources: [FarFlowTests, FarFlow/App/MediaPlaybackService.swift, FarFlow/App/AudioCapture.swift, FarFlow/App/AudioEngineBridge.h, FarFlow/App/AudioEngineBridge.m]
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
         ENABLE_HARDENED_RUNTIME: NO
+        SWIFT_OBJC_BRIDGING_HEADER: FarFlow/App/FarFlow-Bridging-Header.h
     dependencies:
       - target: FarFlowCore
   FarFlowUITests:

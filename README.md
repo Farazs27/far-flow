@@ -40,7 +40,7 @@ English, Dutch and mixed speech are transcribed on your Mac. The small, movable 
 
 ## Build in Xcode
 
-**Source preview · version 0.2.0.** There is no notarized public installer yet. The current target is **macOS 26+ on Apple Silicon**; development was verified on an M4 Mac with 16 GB RAM and Xcode 26.6.
+**Source preview · version 0.2.1.** There is no notarized public installer yet. The current target is **macOS 26+ on Apple Silicon**; development was verified on an M4 Mac with 16 GB RAM and Xcode 26.6.
 
 Install full Xcode, its command-line tools and [XcodeGen](https://github.com/yonaskolb/XcodeGen), then:
 
@@ -75,7 +75,7 @@ Audio is held in memory and discarded after processing or cancellation. Retained
 
 ## Verification and current limits
 
-The native Release build and code signature have been verified. The core test suite passed **44 tests**. Offline benchmarks cover 18 synthetic English/Dutch clips and 200 repeated speech transcriptions. They measure components, not full microphone-to-cursor latency or personal-voice accuracy.
+The native Release build and code signature have been verified. The core test suite passed **50 tests**. Offline benchmarks cover 18 synthetic English/Dutch clips and 200 repeated speech transcriptions. They measure components, not full microphone-to-cursor latency or personal-voice accuracy.
 
 The XCTest UI target is included, but UI automation could not be enabled on the development Mac. Live native checks covered dictation controls, insertion, media pause/resume and process shutdown. A broader editor compatibility matrix and longer daily-use pilot remain. The media integration uses a version-dependent macOS private API.
 

@@ -8,12 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		0A8294E38CAFADC9D663F968 /* LocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F6D138ABC907DDED9B693 /* LocalStore.swift */; };
+		1506390DB88E0BAD0E50A6F4 /* AudioCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80AE5377D17AE8FA89D591D3 /* AudioCapture.swift */; };
 		18B5A58F64379CADF579DE95 /* FnGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02410E35F24017EFEC8D0CB9 /* FnGesture.swift */; };
 		1ACC859CF65ADB5B4832088E /* Archivo-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3CED5BCDC0C1FF3FB4037847 /* Archivo-OFL.txt */; };
 		1C3E1A57493A96D3ED08355F /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = FCF0464CCD05D5CF2BDA10C4 /* MLXLMCommon */; };
 		1D0E3E38302F7215CEF3C069 /* ModelManifest.json in Resources */ = {isa = PBXBuildFile; fileRef = D61D875CAEBDD68485F7AE9C /* ModelManifest.json */; };
 		29AC3233D021EE030C732E9B /* ZalandoSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E693E01B80893A57C24A812E /* ZalandoSans.ttf */; };
 		2A9F7856B612BA362C7AF607 /* PersonalizationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4E21D22A282CD44156F454 /* PersonalizationViews.swift */; };
+		2CB1508942C3ADCB62839B8E /* AudioCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71FC7B9AF4817CC33EC74581 /* AudioCaptureTests.swift */; };
 		2DE82A53FF6C1DBE48E876AC /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A2DE566A0E1A0018F5A3F752 /* libsqlite3.tbd */; };
 		2E7975BCC50B77CB898FEF7C /* Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF2691A03CE3D7707237415 /* Placeholder.swift */; };
 		2FB5A1D9F48EF3D061995654 /* FarFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4001C2F5CC984758899F84DF /* FarFlowApp.swift */; };
@@ -35,8 +37,10 @@
 		75E44B451D545DC3CF99CAA6 /* FarFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289B49DDECD7E99DCDAEE189 /* FarFlowTests.swift */; };
 		771D4E7940BD43920D28CC3D /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = 559169B5AF886C106C224828 /* FluidAudio */; };
 		849D9A2B1DED739E35110FD5 /* RecordingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AF20914C541AA41CE66F6 /* RecordingPanel.swift */; };
+		84AA4212D83CFB60FBA623BB /* AudioEngineBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BE783F36E9BE695E349B45 /* AudioEngineBridge.m */; };
 		87769B8A5C6ED368E863FFCC /* Inference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 043469C289BADAE70877DCB1 /* Inference.swift */; };
 		9458381D5B74E632C710696C /* FarFlowCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		974E01DBA2C91AE264494CCA /* AudioEngineBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA808DE955F3A3AD868417E /* AudioEngineBridgeTests.m */; };
 		9CEE9406E7EBBE0244A77810 /* SettingsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0B7D591DE4034A6FF77EE2 /* SettingsViews.swift */; };
 		9FB24A5954202D5DDA3A97C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEC3CD9EBC49FCD8C1A0005D /* Assets.xcassets */; };
 		B56B0A72363120AD9EEEBF98 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 336B63709A2D3ED3CAD42B79 /* ShortcutService.swift */; };
@@ -54,6 +58,7 @@
 		EB409FB2C3E9948B89CEB07D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC22D385752335F8E44A40DE /* Foundation.framework */; };
 		F041791894055221DA711ED0 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = 9E9B71E2F1A95F0846233AB5 /* MLXLLM */; };
 		F391363C781C2B62A7534A40 /* WritingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1BDADB2BA108CC587B714 /* WritingViews.swift */; };
+		F4E16A406C2DF14BC24265B8 /* AudioEngineBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BE783F36E9BE695E349B45 /* AudioEngineBridge.m */; };
 		F71341547A3DE9C5F4EAD387 /* FarFlowCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */; };
 		F75553170DC08918D08729D1 /* FarFlowMediaBridge.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C0D1CC1E9DE74CB9F1920084 /* FarFlowMediaBridge.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -127,6 +132,7 @@
 		0406ECF34C16ED8E5953D4AB /* MediaBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaBridge.m; sourceTree = "<group>"; };
 		043469C289BADAE70877DCB1 /* Inference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Inference.swift; sourceTree = "<group>"; };
 		056BF872BC4B9EB226DABF0A /* FarFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FarFlowUITests.swift; sourceTree = "<group>"; };
+		19EDC003CE19EF5FF3F6B4D8 /* FarFlow-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FarFlow-Bridging-Header.h"; sourceTree = "<group>"; };
 		1EEE0AA0A0B495B7BADBD4BB /* FarFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FarFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		221F6D138ABC907DDED9B693 /* LocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
 		289B49DDECD7E99DCDAEE189 /* FarFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FarFlowTests.swift; sourceTree = "<group>"; };
@@ -140,20 +146,24 @@
 		4001C2F5CC984758899F84DF /* FarFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FarFlowApp.swift; sourceTree = "<group>"; };
 		4A211A7EE8C33BBA85925698 /* FarFlowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FarFlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5531B4AC7C6E0D3E9A958A85 /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
+		58BE783F36E9BE695E349B45 /* AudioEngineBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioEngineBridge.m; sourceTree = "<group>"; };
 		5A25D615C4923AA83D21C962 /* Archivo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Archivo.ttf; sourceTree = "<group>"; };
 		5AF1C5B86FB6BB7FF10BBCFD /* ThirdPartyNotices.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ThirdPartyNotices.txt; sourceTree = "<group>"; };
 		62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FarFlowCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		689C667E6900A0AB65BCB34E /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		71FC7B9AF4817CC33EC74581 /* AudioCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureTests.swift; sourceTree = "<group>"; };
 		7307BE03B4356E0BF460FE41 /* MediaPlaybackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlaybackTests.swift; sourceTree = "<group>"; };
 		75DDFBF8A8FA38DAD7335A8D /* Marcellus-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Marcellus-OFL.txt"; sourceTree = "<group>"; };
 		7AAFB1C6FF57B265A04865C9 /* TextPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPipeline.swift; sourceTree = "<group>"; };
 		80AE5377D17AE8FA89D591D3 /* AudioCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCapture.swift; sourceTree = "<group>"; };
 		80F8E24C610DE16AFFE77FB4 /* InsertionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertionService.swift; sourceTree = "<group>"; };
 		835AF20914C541AA41CE66F6 /* RecordingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPanel.swift; sourceTree = "<group>"; };
+		8E5F381769D82A70763E4B63 /* AudioEngineBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioEngineBridge.h; sourceTree = "<group>"; };
 		92EBC78549E1A42E529C39EB /* ZalandoSans-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ZalandoSans-OFL.txt"; sourceTree = "<group>"; };
 		9BF2691A03CE3D7707237415 /* Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholder.swift; sourceTree = "<group>"; };
 		9D160F7B4A32ADE7EAB40822 /* MediaPlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlaybackService.swift; sourceTree = "<group>"; };
 		A2DE566A0E1A0018F5A3F752 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		AAA808DE955F3A3AD868417E /* AudioEngineBridgeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioEngineBridgeTests.m; sourceTree = "<group>"; };
 		AC22D385752335F8E44A40DE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		BA23474EB8A79522B126507E /* FarFlowBench */ = {isa = PBXFileReference; includeInIndex = 0; path = FarFlowBench; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0D1CC1E9DE74CB9F1920084 /* FarFlowMediaBridge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FarFlowMediaBridge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -224,6 +234,9 @@
 			children = (
 				689C667E6900A0AB65BCB34E /* AppModel.swift */,
 				80AE5377D17AE8FA89D591D3 /* AudioCapture.swift */,
+				8E5F381769D82A70763E4B63 /* AudioEngineBridge.h */,
+				58BE783F36E9BE695E349B45 /* AudioEngineBridge.m */,
+				19EDC003CE19EF5FF3F6B4D8 /* FarFlow-Bridging-Header.h */,
 				4001C2F5CC984758899F84DF /* FarFlowApp.swift */,
 				80F8E24C610DE16AFFE77FB4 /* InsertionService.swift */,
 				9D160F7B4A32ADE7EAB40822 /* MediaPlaybackService.swift */,
@@ -324,6 +337,8 @@
 		DE97098D4F433D59F0CE6CDE /* FarFlowTests */ = {
 			isa = PBXGroup;
 			children = (
+				71FC7B9AF4817CC33EC74581 /* AudioCaptureTests.swift */,
+				AAA808DE955F3A3AD868417E /* AudioEngineBridgeTests.m */,
 				289B49DDECD7E99DCDAEE189 /* FarFlowTests.swift */,
 				7307BE03B4356E0BF460FE41 /* MediaPlaybackTests.swift */,
 			);
@@ -589,6 +604,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1506390DB88E0BAD0E50A6F4 /* AudioCapture.swift in Sources */,
+				2CB1508942C3ADCB62839B8E /* AudioCaptureTests.swift in Sources */,
+				84AA4212D83CFB60FBA623BB /* AudioEngineBridge.m in Sources */,
+				974E01DBA2C91AE264494CCA /* AudioEngineBridgeTests.m in Sources */,
 				75E44B451D545DC3CF99CAA6 /* FarFlowTests.swift in Sources */,
 				506C02EAB3917CCF75766761 /* MediaPlaybackService.swift in Sources */,
 				5C4BCA546F02E69EE5231C8F /* MediaPlaybackTests.swift in Sources */,
@@ -609,6 +628,7 @@
 			files = (
 				C4A88D68E417B52CF2C8454A /* AppModel.swift in Sources */,
 				4AD6E025AF2174ECF3F06093 /* AudioCapture.swift in Sources */,
+				F4E16A406C2DF14BC24265B8 /* AudioEngineBridge.m in Sources */,
 				DB6FD2147A3899CDE554BE85 /* DictationView.swift in Sources */,
 				2FB5A1D9F48EF3D061995654 /* FarFlowApp.swift in Sources */,
 				B5761C719029E55F0BA67FA0 /* InsertionService.swift in Sources */,
@@ -800,6 +820,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.faraz.farflow.FarFlowTests;
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "FarFlow/App/FarFlow-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -816,7 +837,7 @@
 		6CA08EC2A8C22860A1D6EF75 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconStudio;
+				ASSETCATALOG_COMPILER_APPICON_NAME = FarFlowAppIcon;
 				CODE_SIGN_ENTITLEMENTS = FarFlow/FarFlow.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = FarFlow/Info.plist;
@@ -824,13 +845,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.faraz.farflow;
 				PRODUCT_NAME = "Far Flow";
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "FarFlow/App/FarFlow-Bridging-Header.h";
 			};
 			name = Release;
 		};
 		792430E2D9B67AC9F2A6733C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconStudio;
+				ASSETCATALOG_COMPILER_APPICON_NAME = FarFlowAppIcon;
 				CODE_SIGN_ENTITLEMENTS = FarFlow/FarFlow.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = FarFlow/Info.plist;
@@ -838,6 +860,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.faraz.farflow;
 				PRODUCT_NAME = "Far Flow";
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "FarFlow/App/FarFlow-Bridging-Header.h";
 			};
 			name = Debug;
 		};
@@ -1005,6 +1028,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.faraz.farflow.FarFlowTests;
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "FarFlow/App/FarFlow-Bridging-Header.h";
 			};
 			name = Debug;
 		};

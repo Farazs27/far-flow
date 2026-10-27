@@ -18,7 +18,7 @@ flowchart LR
 
 ## Application layer
 
-`AppModel` coordinates capture, inference, cancellation, insertion and persisted preferences. `AudioCapture` manages input selection and in-memory audio. `ShortcutService` handles Fn gestures through an Accessibility event tap. The dashboard stays in the background for external dictation.
+`AppModel` coordinates capture, inference, cancellation, insertion and persisted preferences. `AudioCapture` manages input selection and in-memory audio. Each capture owns a fresh audio graph; a small Objective-C boundary converts native audio-engine exceptions into recoverable errors. The tap uses its native device format and generation-scoped buffers. `ShortcutService` handles Fn gestures through an Accessibility event tap. The dashboard stays in the background for external dictation.
 
 `InsertionService` captures the intended destination at the end of recording and checks it again before insertion. It avoids secure fields and changed destinations. Direct insertion can be verified where an editor exposes enough Accessibility state; an unverified paste request is reported separately and text remains recoverable for copying. Dictation never automatically presses Return in Terminal.
 

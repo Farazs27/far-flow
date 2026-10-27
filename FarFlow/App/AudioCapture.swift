@@ -8,15 +8,62 @@ struct InputDevice: Identifiable, Hashable {
     let name: String
 }
 
-final class AudioCapture: @unchecked Sendable {
+@MainActor protocol MicrophoneSession: AnyObject {
+    func start(deviceID: UInt32, receive: @escaping (AVAudioPCMBuffer) -> Void) throws
+    func stop()
+    func owns(_ object: Any?) -> Bool
+    var needsRecovery: Bool {get}
+}
+
+@MainActor private final class EngineMicrophoneSession: MicrophoneSession {
     private let engine = AVAudioEngine()
+    func start(deviceID: UInt32, receive: @escaping (AVAudioPCMBuffer) -> Void) throws {
+        if let error=FFAudioEngineBridge.start(engine,deviceID:deviceID,handler:receive) { throw error }
+    }
+    func stop() { FFAudioEngineBridge.stop(engine) }
+    func owns(_ object: Any?) -> Bool { (object as? AVAudioEngine) === engine }
+    var needsRecovery: Bool {!engine.isRunning}
+}
+
+/// The render thread only touches this locked buffer, never application/UI state.
+private final class CapturedAudio: @unchecked Sendable {
     private let lock = NSLock()
     private var collected: [Float] = []
     private var rate: Double = 48000
     private var level: Float = 0
-    private var active = false
+    private var generation: UUID?
     var meter: Float { lock.lock(); defer { lock.unlock() }; return level }
     var duration: Double { lock.lock(); defer { lock.unlock() }; return Double(collected.count)/rate }
+    func begin(_ id: UUID) { lock.lock();defer{lock.unlock()};generation=id;collected=[];level=0 }
+    func append(_ buffer: AVAudioPCMBuffer, session: UUID) {
+        guard let channels=buffer.floatChannelData, !buffer.format.isInterleaved,
+              buffer.format.sampleRate>0,buffer.format.channelCount>0,buffer.frameLength>0 else{return}
+        let count=Int(buffer.frameLength), channelCount=Int(buffer.format.channelCount)
+        var samples=[Float](repeating:0,count:count)
+        for c in 0..<channelCount { for i in 0..<count { samples[i] += channels[c][i]/Float(channelCount) } }
+        let rms=sqrt(samples.reduce(0) { $0+$1*$1 }/Float(count))
+        lock.lock();defer{lock.unlock()}
+        guard generation==session else{return}
+        if collected.isEmpty {rate=buffer.format.sampleRate}
+        guard rate==buffer.format.sampleRate else{return}
+        let remaining=max(0,Int(rate*300)-collected.count)
+        collected.append(contentsOf:samples.prefix(remaining));level=min(1,rms*12)
+    }
+    func finish() -> ([Float],Double) {
+        lock.lock();defer{lock.unlock()}
+        generation=nil;let result=(collected,rate);collected=[];level=0;return result
+    }
+}
+
+@MainActor final class AudioCapture {
+    private let captured=CapturedAudio()
+    private let makeSession: () -> MicrophoneSession
+    private var session: MicrophoneSession?
+    init(makeSession: @escaping () -> MicrophoneSession) {self.makeSession=makeSession}
+    convenience init() {self.init(makeSession:{EngineMicrophoneSession()})}
+    var meter: Float {captured.meter}
+    var duration: Double {captured.duration}
+    func needsRecovery(after object:Any?) -> Bool {session?.owns(object) == true && session?.needsRecovery == true}
 
     static func devices() -> [InputDevice] {
         var address=AudioObjectPropertyAddress(mSelector:kAudioHardwarePropertyDevices,mScope:kAudioObjectPropertyScopeGlobal,mElement:kAudioObjectPropertyElementMain)
@@ -35,42 +82,22 @@ final class AudioCapture: @unchecked Sendable {
         }
     }
     func start(deviceID: UInt32) throws {
-        guard !active else { return }
-        let input=engine.inputNode
-        if let unit=input.audioUnit {
-            var device=deviceID
-            if device==0 {
-                var address=AudioObjectPropertyAddress(mSelector:kAudioHardwarePropertyDefaultInputDevice,mScope:kAudioObjectPropertyScopeGlobal,mElement:kAudioObjectPropertyElementMain)
-                var size=UInt32(MemoryLayout<UInt32>.size)
-                guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject),&address,0,nil,&size,&device)==noErr else {throw FlowError.message("The system microphone is unavailable.")}
-            }
-            guard AudioUnitSetProperty(unit,kAudioOutputUnitProperty_CurrentDevice,kAudioUnitScope_Global,0,&device,UInt32(MemoryLayout<UInt32>.size))==noErr else { throw FlowError.message("This microphone is unavailable. Choose another input in Settings.") }
-        }
-        let format=input.outputFormat(forBus:0)
-        guard format.sampleRate>0, format.channelCount>0 else { throw FlowError.message("No microphone input is available.") }
-        lock.lock(); collected=[]; rate=format.sampleRate; level=0; lock.unlock()
-        input.installTap(onBus:0,bufferSize:2048,format:format) { [weak self] buffer,_ in
-            guard let self, let channels=buffer.floatChannelData else { return }
-            let count=Int(buffer.frameLength), channelCount=Int(buffer.format.channelCount)
-            var samples=[Float](repeating:0,count:count)
-            for c in 0..<channelCount { for i in 0..<count { samples[i] += channels[c][i]/Float(channelCount) } }
-            let rms=sqrt(samples.reduce(0) { $0+$1*$1 }/Float(max(1,count)))
-            self.lock.lock()
-            if self.collected.count < Int(self.rate*300) { self.collected.append(contentsOf:samples) }
-            self.level=min(1,rms*12)
-            self.lock.unlock()
-        }
-        do { engine.prepare(); try engine.start(); active=true }
-        catch { input.removeTap(onBus:0); throw error }
+        guard session==nil else { return }
+        let id=UUID(),next=makeSession();captured.begin(id)
+        do {
+            // A fresh graph prevents a previous capture's device format/tap surviving.
+            try next.start(deviceID:deviceID) {[captured] buffer in captured.append(buffer,session:id)}
+            session=next
+        } catch {next.stop();_ = captured.finish();throw error}
     }
     func stop() throws -> [Float] {
-        guard active else { return [] }
-        engine.stop(); engine.inputNode.removeTap(onBus:0); active=false
-        lock.lock(); let samples=collected; let sampleRate=rate; collected=[]; level=0; lock.unlock()
+        guard let current=session else { return [] }
+        session=nil;current.stop()
+        let (samples,sampleRate)=captured.finish()
         guard !samples.isEmpty, let format=AVAudioFormat(commonFormat:.pcmFormatFloat32,sampleRate:sampleRate,channels:1,interleaved:false), let buffer=AVAudioPCMBuffer(pcmFormat:format,frameCapacity:AVAudioFrameCount(samples.count)) else { return [] }
         buffer.frameLength=AVAudioFrameCount(samples.count)
         samples.withUnsafeBufferPointer { ptr in if let base=ptr.baseAddress { buffer.floatChannelData?[0].update(from:base,count:samples.count) } }
         return try AudioIO.resample(buffer)
     }
-    func cancel() { _ = try? stop() }
+    func cancel() {let current=session;session=nil;current?.stop();_ = captured.finish()}
 }

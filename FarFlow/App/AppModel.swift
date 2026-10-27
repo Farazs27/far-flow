@@ -92,7 +92,7 @@ enum RecordingState: Equatable {
     }
     func launch() {
         // Supply the current artwork directly as well as through Launch Services.
-        if let url=Bundle.main.url(forResource:"AppIconStudio",withExtension:"icns"),let icon=NSImage(contentsOf:url) {NSApp.applicationIconImage=icon}
+        if let url=Bundle.main.url(forResource:"FarFlowAppIcon",withExtension:"icns"),let icon=NSImage(contentsOf:url) {NSApp.applicationIconImage=icon}
         overlay=RecordingPanel(model:self)
         playback.onChange = {[weak self] in guard let self else{return};self.mediaStatus=self.playback.status}
         if !uiTesting{playback.start()}
@@ -110,10 +110,12 @@ enum RecordingState: Equatable {
             guard let app=note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication, app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
             Task { @MainActor [weak self] in self?.lastExternalTarget=InsertionService.capture() }
         })
-        observers.append(NotificationCenter.default.addObserver(forName:.AVAudioEngineConfigurationChange,object:nil,queue:.main) { [weak self] _ in
-            Task { @MainActor in
+        observers.append(NotificationCenter.default.addObserver(forName:.AVAudioEngineConfigurationChange,object:nil,queue:.main) { [weak self] notification in
+            MainActor.assumeIsolated {
                 guard let self else { return }
-                if self.state == .recording { self.stopRecording(); self.lastStatus="Microphone changed. Your captured speech is being recovered." }
+                // Startup may post a delayed configuration notification while
+                // the engine is already healthy. Recover only a stopped graph.
+                if self.state == .recording && self.audio.needsRecovery(after:notification.object) { self.stopRecording(); self.lastStatus="Microphone changed. Your captured speech is being recovered." }
                 self.devices=AudioCapture.devices()
             }
         })
@@ -193,13 +195,13 @@ enum RecordingState: Equatable {
             try audio.start(deviceID:data.preferences.inputDeviceID)
             if handsFree {shortcuts.lockRecording()}
             state = .recording; overlay?.show()
-            if data.preferences.sounds { NSSound(named:"Tink")?.play() }
+            playDictationCue("Tink")
             meterTimer=Timer.scheduledTimer(withTimeInterval:0.08,repeats:true) { [weak self] _ in Task { @MainActor in
                 guard let self else { return }
                 self.meter=self.audio.meter; self.recordingDuration=self.audio.duration
                 if self.recordingDuration>=299 { self.stopRecording() }
             } }
-        } catch {if let id=activeSession{playback.resume(session:id)};activeSession=nil; state = .idle; self.error=error.localizedDescription }
+        } catch {if let id=activeSession{playback.resume(session:id)};activeSession=nil;self.handsFree=false;shortcuts.resetGesture();state = .idle; self.error=error.localizedDescription }
     }
     func stopRecording() {
         guard state == .recording, let id=activeSession else { return }
@@ -266,8 +268,13 @@ enum RecordingState: Equatable {
     private func finishSession(_ id: UUID,status: String) {
         guard activeSession==id else { return }
         activeSession=nil; state = .idle; lastStatus=status; meter=0; sessionTask=nil;handsFree=false;shortcuts.resetGesture()
-        if data.preferences.sounds { NSSound(named:"Pop")?.play() }
+        playDictationCue("Pop")
         overlay?.hideAfterDelay()
+    }
+    private func playDictationCue(_ name:NSSound.Name) {
+        guard data.preferences.sounds,let sound=NSSound(named:name) else{return}
+        sound.volume=0.12
+        sound.play()
     }
     func importAudio(_ url: URL) {
         guard state == .idle, canRecord else { return }

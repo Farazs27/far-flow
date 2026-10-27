@@ -51,10 +51,13 @@ import FarFlowCore
         if type == .keyDown, modifiers, code == 36 {if !toggleHeld{toggleHeld=true;resetGesture();enqueue(onToggle)};return true}
         if type == .keyUp, code == 36,toggleHeld {toggleHeld=false;return true}
         if shortcut == "fn", type == .flagsChanged {
+            // Measure the physical gesture, even if microphone startup briefly
+            // delayed delivery on the main run loop.
+            let eventTime=event.timestamp>0 ? Double(event.timestamp)/1_000_000_000:ProcessInfo.processInfo.systemUptime
             let pressed=flags.contains(.maskSecondaryFn)
-            if pressed && !fnHeld {fnHeld=true;pendingFnStop?.cancel();perform(fnGesture.press(at:ProcessInfo.processInfo.systemUptime));return true}
+            if pressed && !fnHeld {fnHeld=true;pendingFnStop?.cancel();perform(fnGesture.press(at:eventTime));return true}
             else if !pressed && fnHeld {
-                fnHeld=false;perform(fnGesture.release(at:ProcessInfo.processInfo.systemUptime))
+                fnHeld=false;perform(fnGesture.release(at:eventTime))
                 if let deadline=fnGesture.pendingStopDeadline {
                     let work=DispatchWorkItem{[weak self] in guard let self else{return};self.perform(self.fnGesture.expire(at:ProcessInfo.processInfo.systemUptime))}
                     pendingFnStop=work;DispatchQueue.main.asyncAfter(deadline:.now()+max(0,deadline-ProcessInfo.processInfo.systemUptime),execute:work)
