@@ -1,0 +1,10 @@
+Generated with the built-in image-generation tool. Export: 1280 x 640 PNG.
+
+Use case: ads-marketing.
+Asset type: GitHub repository social sharing preview for Far Flow, 1280 x 640 pixels, landscape 2:1, solid background.
+Primary request: Create a polished editorial brand card using the existing Far Flow identity. This is a social preview graphic, not an app screenshot.
+Input images: Image 1 is the exact approved Far Flow app icon and flowing F logo, identity reference. Image 2 is the existing travertine ribbon banner, brand artwork reference.
+Style: quiet premium native Mac software, modern architectural editorial typography, precise composition and lots of breathing room. Warm ivory #F6F3EB, near charcoal #24231F, restrained olive. No neon or generic tech graphics.
+Composition: Use a warm ivory upper portion for the brand and a wide cinematic crop of the supplied sculptural travertine ribbon across the bottom third. Center the exact flowing F mark with FAR FLOW wordmark as a strong recognizable lockup in the central safe area. Set the name large in clean measured sans typography akin Zalando Sans, not a serif. The tagline sits below in smaller charcoal type, then one restrained small descriptive line. All essential identity inside the center 640px so a chat thumbnail still shows Far Flow.
+Text verbatim: "FAR FLOW" then "Your voice. On your Mac." then "English + Dutch · Fully local".
+Preserve the original flowing F geometry from image 1 without inventing a different mark. No new logo concept. Elegant, legible at small sizes, professionally art-directed, no browser frame, no QR code, no watermark, no fake interface, no extra text.
