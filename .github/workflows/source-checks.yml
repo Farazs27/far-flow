@@ -13,8 +13,9 @@ jobs:
           persist-credentials: false
       - name: Check shell and Python syntax
         run: |
-          bash -n scripts/build.sh scripts/install.sh
+          for script in scripts/*.sh; do bash -n "$script"; done
           python3 -m compileall -q scripts
+          python3 -m unittest discover -s scripts/tests -v
       - name: Validate JSON and property lists
         run: |
           python3 - <<'PYTHON'

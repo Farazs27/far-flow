@@ -1,5 +1,6 @@
 import AppKit
 import Darwin
+import ApplicationServices
 
 @MainActor protocol MediaTransport: AnyObject {
     var available: Bool { get }
@@ -25,7 +26,7 @@ extension MediaTransport { func close() {} }
         if playing { return "Ready to pause \(NSRunningApplication(processIdentifier: playerPID)?.localizedName ?? "media")" }
         return "No media currently playing"
     }
-    init(transport: MediaTransport? = nil) { self.transport = transport ?? LocalNowPlayingTransport() }
+    init(transport: MediaTransport? = nil) { self.transport = transport ?? FallbackMediaTransport(primary:LocalNowPlayingTransport(),fallback:SpotifyPlaybackTransport()) }
     func start() {
         timer?.invalidate(); refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: true) { [weak self] _ in
@@ -130,5 +131,88 @@ extension MediaTransport { func close() {} }
     func close() {
         // EOF is processed after queued transport commands, including the final resume.
         try? input.fileHandleForWriting.close()
+    }
+}
+
+/// Some players do not own the global Now Playing slot (for example Spotify
+/// while a paused QuickTime window owns it). Keep commands routed to the player
+/// whose state was read, including its paused state until resume completes.
+@MainActor final class FallbackMediaTransport: MediaTransport {
+    private let primary: MediaTransport
+    private let fallback: MediaTransport
+    private var usingFallback=false
+    init(primary: MediaTransport, fallback: MediaTransport) {self.primary=primary;self.fallback=fallback}
+    var available: Bool {primary.available || fallback.available}
+    func readState(_ completion: @escaping (Int32,Bool)->Void) {
+        primary.readState { [weak self] primaryPID,primaryPlaying in
+            guard let self else {return}
+            self.fallback.readState { [weak self] fallbackPID,fallbackPlaying in
+                guard let self else {return}
+                if fallbackPID>0 && (fallbackPlaying || (!primaryPlaying && self.usingFallback)) {
+                    self.usingFallback=true;completion(fallbackPID,fallbackPlaying)
+                } else {
+                    self.usingFallback=false;completion(primaryPID,primaryPlaying)
+                }
+            }
+        }
+    }
+    func send(_ command: UInt32) -> Bool {(usingFallback ? fallback:primary).send(command)}
+    func close(){primary.close();fallback.close()}
+}
+
+/// Spotify's own accessible playback controls provide an explicit pause/play
+/// fallback using the Accessibility permission Far Flow already needs. This
+/// never activates Spotify or requests Automation permission. It only presses
+/// a control explicitly labeled with the requested action.
+@MainActor final class SpotifyPlaybackTransport: MediaTransport {
+    private var cachedPID: pid_t=0
+    private var controls: AXUIElement?
+    var available: Bool {AXIsProcessTrusted() && app != nil}
+    private var app: NSRunningApplication? {NSRunningApplication.runningApplications(withBundleIdentifier:"com.spotify.client").first}
+    private func value(_ element:AXUIElement,_ attribute:String)->CFTypeRef? {
+        var value:CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element,attribute as CFString,&value) == .success else{return nil}
+        return value
+    }
+    private func labels(_ element:AXUIElement)->[String] {
+        [kAXTitleAttribute,kAXDescriptionAttribute].compactMap{value(element,$0) as? String}
+    }
+    private func find(_ root:AXUIElement,limit:Int,matching:(AXUIElement)->Bool)->AXUIElement? {
+        var queue=[root],index=0
+        while index<queue.count && index<limit {
+            let element=queue[index];index += 1
+            if matching(element){return element}
+            if let children=value(element,kAXChildrenAttribute) as? [AXUIElement] {
+                queue.append(contentsOf:children.prefix(max(0,limit-queue.count)))
+            }
+        }
+        return nil
+    }
+    private func playbackControls(pid:pid_t)->AXUIElement? {
+        if cachedPID==pid,let controls,value(controls,kAXRoleAttribute) != nil {return controls}
+        cachedPID=pid;controls=nil
+        let root=AXUIElementCreateApplication(pid)
+        AXUIElementSetMessagingTimeout(root,0.15)
+        _ = AXUIElementSetAttributeValue(root,"AXManualAccessibility" as CFString,kCFBooleanTrue)
+        let names=["Player controls","Afspeelbediening","Controles del reproductor","Contrôles du lecteur","Wiedergabesteuerung"]
+        controls=find(root,limit:1500){!Set(self.labels($0)).isDisjoint(with:names)}
+        return controls
+    }
+    private func button(_ command:UInt32,pid:pid_t)->AXUIElement? {
+        guard let controls=playbackControls(pid:pid) else{return nil}
+        let names=command==1 ? ["Pause","Pauze","Pausar"]:["Play","Afspelen","Reproducir","Lecture","Wiedergabe"]
+        return find(controls,limit:100){
+            (self.value($0,kAXRoleAttribute) as? String)==kAXButtonRole && !Set(self.labels($0)).isDisjoint(with:names)
+        }
+    }
+    func readState(_ completion:@escaping(Int32,Bool)->Void) {
+        guard available,let pid=app?.processIdentifier else{completion(0,false);return}
+        if button(1,pid:pid) != nil {completion(pid,true)}
+        else if button(0,pid:pid) != nil {completion(pid,false)}
+        else {controls=nil;completion(0,false)}
+    }
+    func send(_ command:UInt32)->Bool {
+        guard command<=1,available,let pid=app?.processIdentifier,let button=button(command,pid:pid) else{return false}
+        return AXUIElementPerformAction(button,kAXPressAction as CFString) == .success
     }
 }

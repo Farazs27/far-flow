@@ -15,6 +15,29 @@ struct Measurement: Codable { let id: String; let language: String; let referenc
         let args=Array(CommandLine.arguments.dropFirst())
         guard let command=args.first else { print("FarFlowBench speech|whisper|cleanup|stress|prepare-whisper <corpus.json> <output.json>");return }
         print("Starting \(command) using models at \(FlowPaths.models.path)");fflush(stdout)
+        if command=="meeting-summary" || command=="meeting-summary-long" {
+            let cases=[
+                ("English", "[1] 00:00 Microphone: We agreed to launch the pilot on Monday. Alex will send the draft on Friday.\n[2] 00:30 Meeting app: The budget is 250 euros. We did not approve an increase. The venue is still undecided."),
+                ("Dutch", "[1] 00:00 Microphone: We hebben besloten de proef maandag te starten. Noor stuurt vrijdag het voorstel.\n[2] 00:30 Meeting app: Het budget is 250 euro. We hebben geen verhoging goedgekeurd. De locatie is nog niet bepaald."),
+                ("Long bilingual", (1...80).map { "[\($0)] \(Meeting.timestamp(Double($0*30))) Meeting app: We discussed the draft schedule. Er is nog geen besluit genomen over de locatie. The budget remains 250 euros; no increase was approved." }.joined(separator:"\n")+"\n[81] 40:30 Microphone: Final decision: Noor sends the proposal on Friday; the pilot starts Monday.")
+            ]
+            let engine=LocalCleanupEngine(); var rows:[[String:Any]]=[]
+            for (name,source) in (command == "meeting-summary-long" ? [cases[2]] : cases) {
+                let began=Date()
+                let result=try await engine.summarizeMeeting(source) { message in print(message); fflush(stdout) }
+                rows.append(["case":name,"source":source,"summary":result,"seconds":Date().timeIntervalSince(began)])
+                print("\(name): \(result)"); fflush(stdout)
+                if name == "Dutch", TextPipeline.detectedLanguage(result,preferred:.auto) != "nl" { throw FlowError.message("Dutch summary unexpectedly changed language.") }
+                if name == "Long bilingual", !result.contains("Noor") { throw FlowError.message("Long summary omitted the final action owner.") }
+            }
+            let cancellation=Task { try await engine.summarizeMeeting(cases[2].1) }
+            try await Task.sleep(for:.milliseconds(200)); cancellation.cancel()
+            var canceled=false
+            do { _ = try await cancellation.value } catch is CancellationError { canceled=true }
+            guard canceled else { throw FlowError.message("Summary cancellation did not stop generation.") }
+            try JSONSerialization.data(withJSONObject:["cases":rows,"cancellationPassed":canceled,"peakResidentMB":memory()],options:[.prettyPrinted,.sortedKeys]).write(to:URL(fileURLWithPath:args.count>1 ? args[1]:"meeting-summary.json"),options:.atomic)
+            return
+        }
         if command=="prepare-whisper" {
             let url=try await WhisperKit.download(variant:"openai_whisper-large-v3-v20240930_turbo_632MB",downloadBase:FlowPaths.models.appendingPathComponent("whisper-benchmark"))
             try url.path.write(to:FlowPaths.models.appendingPathComponent("whisper-benchmark-path.txt"),atomically:true,encoding:.utf8)

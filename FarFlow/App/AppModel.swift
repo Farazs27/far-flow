@@ -5,9 +5,9 @@ import Observation
 import FarFlowCore
 
 enum FlowPage: String, CaseIterable, Identifiable {
-    case dictation="Dictation", dictionary="Dictionary", snippets="Snippets", styles="Styles", transforms="Transforms", scratchpad="Scratchpad", insights="Insights", models="Models", settings="Settings"
+    case dictation="Dictation", dictionary="Dictionary", snippets="Snippets", styles="Styles", transforms="Transforms", scratchpad="Notes", meetings="Meetings", insights="Insights", models="Models", settings="Settings"
     var id: String { rawValue }
-    var symbol: String { switch self { case .dictation: "mic"; case .dictionary: "book.closed"; case .snippets: "text.bubble"; case .styles: "sparkle"; case .transforms: "arrow.triangle.2.circlepath"; case .scratchpad: "square.and.pencil"; case .insights: "chart.bar.xaxis"; case .models: "shippingbox"; case .settings: "gearshape" } }
+    var symbol: String { switch self { case .dictation: "mic"; case .dictionary: "book.closed"; case .snippets: "text.bubble"; case .styles: "sparkle"; case .transforms: "arrow.triangle.2.circlepath"; case .scratchpad: "square.and.pencil"; case .meetings: "person.2.wave.2"; case .insights: "chart.bar.xaxis"; case .models: "shippingbox"; case .settings: "gearshape" } }
 }
 
 enum RecordingState: Equatable {
@@ -27,6 +27,11 @@ enum RecordingState: Equatable {
     var lastText=""
     var lastStatus="Your voice stays on this Mac."
     var error: String?
+    var saveError: String?
+    @ObservationIgnored var showHub: (() -> Void)?
+    var selectedNote: ScratchNote? {
+        data.notes.first { $0.id == data.preferences.selectedNoteID } ?? data.notes.first
+    }
     var speechReady=false
     var writingReady=false
     var loadingModels=false
@@ -52,7 +57,17 @@ enum RecordingState: Equatable {
     var lastExternalTarget: InsertionTarget?
     var shortcutTitle: String { data.preferences.shortcut == "fn" ? "fn" : "⌃ ⌥ Space" }
     var isDemo: Bool { Bundle.main.object(forInfoDictionaryKey:"FarFlowDemoDataDirectory") is String }
-    var canRecord: Bool { speechReady && modelOperation==nil }
+    var canRecord: Bool { speechReady && modelOperation==nil && !meeting.busy }
+    @ObservationIgnored lazy var meeting=MeetingController(speech:speech,writing:writing)
+    var meetingSuggestion: MeetingCandidate?
+    var finishedMeetingID: UUID?
+    var meetingEndSuggested=false
+    private var meetingEndReminder=MeetingEndReminder()
+    var meetingDetectionIssue: String?
+    private let meetingMonitor=MeetingMonitor()
+    private var meetingPrompt: MeetingPromptPanel?
+    private var promptShownAt=Date.distantPast
+    private var lastMeetingPoll=Date.distantPast
     let speech=LocalSpeechEngine()
     let writing=LocalCleanupEngine()
     let installer=ModelInstaller()
@@ -81,7 +96,7 @@ enum RecordingState: Equatable {
         data=UserData()
         do {
             let database=try LocalStore(); store=database; data=try database.load()
-        } catch { storeWritable=false; self.error="Local data could not be opened. Your existing database has been preserved. \(error.localizedDescription)" }
+        } catch { storeWritable=false; self.error="Local data could not be opened. Your existing database has been preserved. \(error.localizedDescription)"; saveError="Local storage unavailable. Export your notes before quitting." }
         if let path=Bundle.main.url(forResource:"ModelManifest",withExtension:"json"), let bytes=try? Data(contentsOf:path) { manifests=(try? JSONDecoder().decode([ModelManifest].self,from:bytes)) ?? [] }
         if (data.preferences.interfaceRevision ?? 0)<2 {
             data.preferences.interfaceRevision=2;data.preferences.appearance="light";data.preferences.alwaysShowBar=true;data.preferences.showWelcome=true
@@ -91,6 +106,34 @@ enum RecordingState: Equatable {
         showOnboarding = !data.preferences.onboardingComplete && !uiTesting
     }
     func launch() {
+        meetingPrompt=MeetingPromptPanel(model:self)
+        meeting.onFinished = { [weak self] id in
+            guard let self, !self.terminating else { return }
+            self.meetingSuggestion=nil; self.finishedMeetingID=id; self.promptShownAt = .now
+            self.meetingEndSuggested=false
+            self.meetingPrompt?.show()
+            if self.data.preferences.automaticMeetingSummary ?? HardwareProfile().automaticSummaries,
+               self.installedModels.contains("qwen-cleanup"), !self.state.busy, !self.transforming, self.modelOperation == nil {
+                self.meeting.summarize(id)
+            }
+        }
+        meeting.lookup = { [weak self] id in self?.data.meetings?.first { $0.id == id } }
+        meeting.persist = { [weak self] value in
+            guard let self, self.storeWritable else { return false }
+            var values=self.data.meetings ?? []
+            if let index=values.firstIndex(where:{ $0.id == value.id }) { values[index]=value }
+            else { values.insert(value,at:0) }
+            self.data.meetings=values
+            return self.saveError == nil
+        }
+        if var values=data.meetings {
+            for index in values.indices where values[index].status == .recording || values[index].status == .processing {
+                values[index].status = .interrupted
+                values[index].endedAt=values[index].endedAt ?? values[index].startedAt.addingTimeInterval(values[index].segments.map { $0.offset+$0.duration }.max() ?? 0)
+                values[index].issue="The previous session ended early. Finish saved audio to recover pending speech."
+            }
+            data.meetings=values
+        }
         // Supply the current artwork directly as well as through Launch Services.
         if let url=Bundle.main.url(forResource:"FarFlowAppIcon",withExtension:"icns"),let icon=NSImage(contentsOf:url) {NSApp.applicationIconImage=icon}
         overlay=RecordingPanel(model:self)
@@ -105,7 +148,17 @@ enum RecordingState: Equatable {
         if !uiTesting { shortcuts.start() }
         hotkeyReady=shortcuts.available
         let center=NSWorkspace.shared.notificationCenter
-        observers.append(center.addObserver(forName:NSWorkspace.willSleepNotification,object:nil,queue:.main) { [weak self] _ in Task { @MainActor in self?.cancelRecording() } })
+        observers.append(center.addObserver(forName:NSWorkspace.didTerminateApplicationNotification,object:nil,queue:.main) { [weak self] note in
+            guard let app=note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
+            Task { @MainActor [weak self] in
+                guard let self, self.meeting.recording, let id=app.bundleIdentifier,
+                      self.meeting.captureAppBundleID == id else { return }
+                // Only app exit is definitive. Muting or microphone inactivity
+                // must never silently discard the rest of a live call.
+                self.meeting.stop()
+            }
+        })
+        observers.append(center.addObserver(forName:NSWorkspace.willSleepNotification,object:nil,queue:.main) { [weak self] _ in Task { @MainActor in self?.cancelRecording(); self?.meeting.stop(reason:"Mac went to sleep. Saved audio is being transcribed.") } })
         observers.append(center.addObserver(forName:NSWorkspace.didActivateApplicationNotification,object:nil,queue:.main) { [weak self] note in
             guard let app=note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication, app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
             Task { @MainActor [weak self] in self?.lastExternalTarget=InsertionService.capture() }
@@ -122,11 +175,13 @@ enum RecordingState: Equatable {
         housekeepingTimer=Timer.scheduledTimer(withTimeInterval:2,repeats:true) { [weak self] _ in Task { @MainActor in
             guard let self else { return }
             self.refreshPermissions()
+            self.pollMeetingDetection()
             if Date().timeIntervalSince(self.lastRetentionCheck)>60 {
                 self.lastRetentionCheck = .now
                 if let interval=self.data.preferences.retention.interval,self.data.history.contains(where:{interval==0 || $0.createdAt < Date().addingTimeInterval(-interval)}) {self.data.enforceRetention()}
             }
             if !self.shortcuts.available && self.accessibilityGranted && !self.uiTesting { self.shortcuts.start(); self.hotkeyReady=self.shortcuts.available }
+            if self.meeting.recording && !self.microphoneGranted { self.meeting.stop(reason:"Microphone permission was revoked. Saved audio is being transcribed.") }
             if self.state == .recording && !self.microphoneGranted { self.cancelRecording(); self.error="Microphone permission was revoked. Enable it in System Settings." }
         } }
         applyAppearance()
@@ -135,6 +190,8 @@ enum RecordingState: Equatable {
     }
     func terminate() {
         guard !terminating else{return};terminating=true
+        meeting.shutdown()
+        meetingMonitor.reset(); meetingPrompt?.close()
         activeSession=nil;sessionTask?.cancel();warmupTask?.cancel();transformTask?.cancel()
         audio.cancel();meterTimer?.invalidate();housekeepingTimer?.invalidate()
         shortcuts.stop();playback.stop();overlay?.close();state = .idle;meter=0;save()
@@ -148,7 +205,12 @@ enum RecordingState: Equatable {
     }
     func save() {
         guard storeWritable, let store else { return }
-        do { try store.save(data) } catch { self.error="Your latest change could not be saved. \(error.localizedDescription)" }
+        do { try store.save(data); saveError=nil }
+        catch { saveError="Changes not saved. \(error.localizedDescription)" }
+    }
+    func createNote(text: String = "") {
+        data.createNote(text:text)
+        page = .scratchpad
     }
     func refreshModels() { installedModels=Set(manifests.filter { $0.isInstalled() }.map(\.id)) }
     func refreshPermissions() {
@@ -165,11 +227,12 @@ enum RecordingState: Equatable {
     }
     func openPrivacy(_ pane: String) { if let url=URL(string:"x-apple.systempreferences:com.apple.preference.security?\(pane)") { NSWorkspace.shared.open(url) } }
     func warmModels() async {
+        guard !meeting.busy else { return }
         guard !loadingModels, installedModels.contains("parakeet-v3") else { modelStatus="Install the speech model to begin"; return }
         loadingModels=true; modelStatus="Loading English + Dutch speech…"
         do {
             try await speech.load(); speechReady=true; modelStatus="Speech model ready"
-            if data.preferences.useLocalAI && (data.preferences.cleanup == .medium || data.preferences.style != .standard) && installedModels.contains("qwen-cleanup") {
+            if HardwareProfile().automaticSummaries && data.preferences.useLocalAI && (data.preferences.cleanup == .medium || data.preferences.style != .standard) && installedModels.contains("qwen-cleanup") {
                 modelStatus="Loading local writing model…"; try await writing.load(); writingReady=true
             }
             modelStatus=writingReady ? "Local models ready":"Local speech ready"
@@ -178,7 +241,8 @@ enum RecordingState: Equatable {
     }
     func toggleRecording() {if state == .recording {stopRecording()}else{startRecording(handsFree:true)}}
     func startRecording(noteID: UUID? = nil,handsFree:Bool = false) {
-        guard state == .idle else { return }
+        guard !meeting.busy else { lastStatus="Finish meeting work before dictating."; return }
+        guard state == .idle, !terminating else { return }
         guard canRecord else { page = .models; lastStatus="Wait for the speech model to load."; return }
         guard microphoneGranted else { showOnboarding=true; requestMicrophone(); return }
         if NSWorkspace.shared.frontmostApplication?.processIdentifier != ProcessInfo.processInfo.processIdentifier && !accessibilityGranted {
@@ -187,7 +251,9 @@ enum RecordingState: Equatable {
         let target=InsertionService.capture()
         guard target?.secure != true else { lastStatus="Dictation is blocked in secure text fields."; return }
         sessionWantsReview=NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier
-        targetNote=noteID
+        // The global shortcut also works in Notes. Capture the ID at start so
+        // navigating to another note while processing never changes the destination.
+        targetNote=noteID ?? (sessionWantsReview && page == .scratchpad ? selectedNote?.id : nil)
         self.handsFree=handsFree
         activeSession=UUID(); lastStatus=""; lastText=""; lastRaw=""; recordingDuration=0
         if let id=activeSession{playback.pause(session:id,enabled:data.preferences.pauseMediaDuringDictation ?? true)}
@@ -236,9 +302,9 @@ enum RecordingState: Equatable {
                 self.lastText=result.text
                 self.state = .inserting
                 let outcome: String
-                if let note, let i=data.notes.firstIndex(where:{$0.id==note}) {
-                    data.notes[i].text += (data.notes[i].text.isEmpty ? "" : "\n") + result.text
-                    data.notes[i].updatedAt = .now; outcome="Added to scratchpad"
+                if let note {
+                    if data.appendToNote(id:note,text:result.text) { outcome=saveError == nil ? "Saved to note" : "Added to note · not saved" }
+                    else { outcome="Note was deleted · text ready to copy"; showTranscript=true; openHub() }
                 } else if let target { outcome=await InsertionService.insert(result.text,into:target) }
                 else { outcome="Ready to copy" }
                 guard self.activeSession==id else { return }
@@ -278,6 +344,7 @@ enum RecordingState: Equatable {
     }
     func importAudio(_ url: URL) {
         guard state == .idle, canRecord else { return }
+        lastRaw=""; lastText=""; showTranscript=false
         let id=UUID(); activeSession=id; state = .transcribing
         sessionTask=Task { [weak self] in
             guard let self else { return }
@@ -302,7 +369,7 @@ enum RecordingState: Equatable {
         transformInput=text; transformTarget=target; transformOutput=""; page = .transforms
     }
     func runTransform() {
-        guard !transforming else { return }; transforming=true; transformOutput=""
+        guard !transforming, !meeting.busy, !state.busy else { return }; transforming=true; transformOutput=""
         let input=transformInput, kind=transformKind
         transformTask=Task { do { transformOutput=try await writing.transform(input,kind:kind); writingReady=true } catch { self.error=error.localizedDescription }; transforming=false }
     }
@@ -323,7 +390,7 @@ enum RecordingState: Equatable {
         Task {try? await Task.sleep(for:.milliseconds(300));lastStatus=await InsertionService.undoTransform(target:target,inserted:transformUndoText);if lastStatus=="Inserted"{transformUndoTarget=nil}}
     }
     func modelAction(_ manifest: ModelManifest, importURL: URL? = nil, verify: Bool = false) {
-        guard modelOperation==nil, state == .idle else { return }
+        guard modelOperation==nil, state == .idle, !meeting.busy else { return }
         modelOperation=manifest.id; modelProgress[manifest.id]=0
         Task {
             do {
@@ -335,7 +402,7 @@ enum RecordingState: Equatable {
         }
     }
     func removeModel(_ manifest: ModelManifest) {
-        guard state == .idle, modelOperation==nil else { return }
+        guard state == .idle, modelOperation==nil, !meeting.busy else { return }
         Task {
             await speech.unload(); await writing.unload(); speechReady=false; writingReady=false
             do { try FileManager.default.trashItem(at:FlowPaths.model(manifest.id),resultingItemURL:nil) } catch { self.error=error.localizedDescription }
@@ -343,19 +410,110 @@ enum RecordingState: Equatable {
         }
     }
     private func updateProgress(_ id: String,value: Double) { modelProgress[id]=value }
-    func preferencesChanged() { shortcuts.shortcut=data.preferences.shortcut; applyAppearance(); data.enforceRetention(); if data.preferences.alwaysShowBar { overlay?.show() } else if state == .idle { overlay?.hideUnlessPersistent() } }
+    func preferencesChanged() { shortcuts.shortcut=data.preferences.shortcut; applyAppearance(); data.enforceRetention(); if data.preferences.alwaysShowBar || meeting.activeID != nil { overlay?.show() } else if state == .idle { overlay?.hideUnlessPersistent() } }
     func applyAppearance() {
         NSApp.appearance=data.preferences.appearance == "light" ? NSAppearance(named:.aqua) : data.preferences.appearance == "dark" ? NSAppearance(named:.darkAqua) : nil
         NSApp.setActivationPolicy(data.preferences.showDock ? .regular : .accessory)
     }
-    func exportData(to url: URL) { do { try store?.export(data,to:url); lastStatus="Local data exported" } catch { self.error=error.localizedDescription } }
-    func importData(from url: URL) { do { if let restored=try store?.importData(from:url) { data=restored; preferencesChanged() } } catch { self.error=error.localizedDescription } }
+    func exportData(to url: URL) { do { try LocalStore.export(data,to:url); lastStatus="Local data exported" } catch { self.error=error.localizedDescription } }
+    func importData(from url: URL) {
+        guard !state.busy, !transforming, !meeting.busy else { error="Finish or cancel dictation, meetings and transforms before restoring a backup."; return }
+        guard storeWritable, let store else { error="Local storage is unavailable. Export your changes before restoring data."; return }
+        do {
+            let backup=FlowPaths.root.appendingPathComponent("Before Import \(UUID().uuidString).json")
+            let currentMeetings=data.meetings ?? []
+            // Pending audio is not part of a portable JSON backup. Do not let it
+            // silently merge into a restored transcript or lose it during restore.
+            for value in currentMeetings {
+                if try !MeetingAudioSpool(meetingID:value.id).pending().isEmpty {
+                    throw FlowError.message("Finish saved meeting audio or delete that meeting before restoring a backup.")
+                }
+            }
+            var restored=try store.restore(from:url,backingUp:data,to:backup)
+            if var values=restored.meetings {
+                for index in values.indices where values[index].status != .complete {
+                    values[index].status = .interrupted
+                    values[index].issue="Imported transcripts only. Pending meeting audio is not included in JSON backups."
+                }
+                restored.meetings=values
+            }
+            data=restored
+            preferencesChanged()
+            lastStatus="Backup restored. Your previous data is saved in the local data folder."
+        } catch { self.error="Backup was not restored. \(error.localizedDescription)" }
+    }
+    func startMeeting(title: String, appBundleID: String, sourceName: String) {
+        guard state == .idle, !transforming, !loadingModels, canRecord, saveError == nil, !terminating else {
+            error="Wait for local speech to be ready and finish other recording or writing work first."; return
+        }
+        guard microphoneGranted else { requestMicrophone(); return }
+        dismissMeetingPrompt()
+        meeting.start(title:title,appBundleID:appBundleID,sourceName:sourceName,deviceID:data.preferences.inputDeviceID,language:data.preferences.meetingLanguage ?? .auto)
+        if meeting.activeID != nil { overlay?.show(); overlay?.updateLayout() }
+    }
+    func deleteMeeting(_ id: UUID) {
+        guard meeting.activeID != id, meeting.summaryID != id else { return }
+        // Remove temporary audio first; a failure leaves the meeting reachable for retry.
+        do {
+            try MeetingAudioSpool(meetingID:id).removeAll()
+            data.meetings?.removeAll { $0.id == id }
+            if meeting.selectedID == id { meeting.selectedID=data.meetings?.first?.id }
+        } catch { self.error=error.localizedDescription }
+    }
+    func meetingDetectionChanged() {
+        meetingMonitor.reset(); meetingEndReminder=MeetingEndReminder(); meetingDetectionIssue=nil
+        if meetingSuggestion != nil || meetingEndSuggested { dismissMeetingPrompt() }
+    }
+    private func pollMeetingDetection() {
+        if Date().timeIntervalSince(promptShownAt)>60 { dismissMeetingPrompt() }
+        guard !uiTesting, !terminating, data.preferences.detectMeetings ?? true,
+              Date().timeIntervalSince(lastMeetingPoll)>=5 else { return }
+        lastMeetingPoll = .now
+        meetingMonitor.poll(canPrompt:!meeting.busy && !state.busy && !transforming && meetingSuggestion == nil && finishedMeetingID == nil) { [weak self] candidate,active,issue in
+            guard let self, !self.terminating, self.data.preferences.detectMeetings ?? true else { return }
+            self.meetingDetectionIssue=issue
+            if self.meetingEndSuggested && !self.meeting.recording { self.dismissMeetingPrompt() }
+            if let active {
+                let sourceActive=active.contains(self.meeting.captureAppBundleID ?? "")
+                if self.meetingEndSuggested && sourceActive { self.dismissMeetingPrompt() }
+                if self.meetingEndReminder.observe(session:self.meeting.recording ? self.meeting.activeID : nil,sourceActive:sourceActive,now:.now) {
+                    self.meetingSuggestion=nil; self.finishedMeetingID=nil; self.meetingEndSuggested=true
+                    self.promptShownAt = .now; self.meetingPrompt?.show()
+                }
+            }
+            if let suggestion=self.meetingSuggestion, let active, !active.contains(suggestion.bundleID) { self.dismissMeetingPrompt() }
+            guard let candidate, !self.meeting.busy, !self.state.busy, !self.transforming else { return }
+            self.finishedMeetingID=nil; self.meetingSuggestion=candidate; self.promptShownAt = .now
+            self.meetingPrompt?.show()
+        }
+    }
+    func dismissMeetingPrompt() {
+        meetingSuggestion=nil; finishedMeetingID=nil; meetingEndSuggested=false; meetingPrompt?.hide()
+    }
+    func acceptMeetingSuggestion() {
+        guard let candidate=meetingSuggestion else { return }
+        guard speechReady, !loadingModels, modelOperation == nil else {
+            dismissMeetingPrompt(); page = .models; openHub(); error="Install and load the speech model, then start your meeting from Meetings."; return
+        }
+        page = .meetings
+        startMeeting(title:"",appBundleID:candidate.bundleID,sourceName:candidate.name)
+        openHub()
+    }
+    func openFinishedMeeting() {
+        guard let id=finishedMeetingID else { return }
+        meeting.selectedID=id; dismissMeetingPrompt(); page = .meetings; openHub()
+    }
+    func updateMeeting(_ id: UUID, title: String? = nil, notes: String? = nil, summary: String? = nil) {
+        guard var value=data.meetings?.first(where:{ $0.id == id }) else { return }
+        if let title { value.title=title }
+        if let notes { value.notes=notes }
+        if let summary { value.summary=summary }
+        _ = meeting.persist(value)
+    }
     func revealData() { NSWorkspace.shared.open(FlowPaths.root) }
     func resizeRecordingBar(){overlay?.updateLayout()}
     func dragRecordingBar(){overlay?.dragToMouse()}
     func finishDraggingRecordingBar(){overlay?.finishDragging()}
     func resetRecordingBarPosition(){data.preferences.overlayX=nil;data.preferences.overlayY=nil;data.preferences.barCenterX=nil;data.preferences.barBottomY=nil;overlay?.resetPosition()}
-    func openHub() { NSApp.activate(ignoringOtherApps:true); NotificationCenter.default.post(name:.openFarFlowHub,object:nil) }
+    func openHub() { showHub?() }
 }
-
-extension Notification.Name { static let openFarFlowHub=Notification.Name("openFarFlowHub") }

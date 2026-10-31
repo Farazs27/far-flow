@@ -58,9 +58,10 @@ targets:
       properties:
         CFBundleDisplayName: Far Flow
         CFBundleName: Far Flow
-        CFBundleShortVersionString: 0.2.1
-        CFBundleVersion: '3'
-        NSMicrophoneUsageDescription: Far Flow uses your microphone only while you dictate. Speech is processed on this Mac.
+        CFBundleShortVersionString: 0.4.0
+        CFBundleVersion: '6'
+        NSMicrophoneUsageDescription: Far Flow uses your microphone for dictation and meeting recording only when you start recording. Speech is processed on this Mac.
+        NSAudioCaptureUsageDescription: Far Flow captures meeting app audio only when you start a local meeting recording.
         NSPrincipalClass: NSApplication
         NSHighResolutionCapable: true
         LSApplicationCategoryType: public.app-category.productivity
@@ -96,7 +97,7 @@ targets:
   FarFlowTests:
     type: bundle.unit-test
     platform: macOS
-    sources: [FarFlowTests, FarFlow/App/MediaPlaybackService.swift, FarFlow/App/AudioCapture.swift, FarFlow/App/AudioEngineBridge.h, FarFlow/App/AudioEngineBridge.m]
+    sources: [FarFlowTests, FarFlow/App/MeetingMonitor.swift, FarFlow/App/MeetingCapture.swift, FarFlow/App/MeetingController.swift, FarFlow/App/InsertionService.swift, FarFlow/App/MediaPlaybackService.swift, FarFlow/App/AudioCapture.swift, FarFlow/App/AudioEngineBridge.h, FarFlow/App/AudioEngineBridge.m]
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

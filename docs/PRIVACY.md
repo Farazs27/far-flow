@@ -1,10 +1,14 @@
 # Privacy and data lifecycle
 
+Meeting suggestions read macOS process bundle IDs and microphone-active flags locally. They do not read audio, calendar entries, browser URLs, window titles or screen contents. No recording starts until the user chooses it. Disable suggestions in Settings → Meetings. Automatic summaries, when enabled, use only the saved transcript and the installed local writing model.
+
 Far Flow is designed for local dictation after explicit model installation. No account, inference API key, cloud transcription or Far Flow telemetry endpoint is required.
 
 | Data | Location and lifetime |
 | --- | --- |
-| Microphone audio | In memory during capture and processing; discarded after completion or cancellation |
+| Dictation microphone audio | In memory during capture and processing; discarded after completion or cancellation |
+| Meeting microphone and selected-app audio | Temporary local `MeetingAudio/` chunks; deleted after each transcript checkpoint saves, or when the meeting is deleted |
+| Meeting transcripts, notes and summaries | Local SQLite document, kept until explicitly deleted or replaced by a backup |
 | Original and cleaned transcripts | Local SQLite data when retention is enabled |
 | Dictionary, snippets, styles, scratchpad and preferences | Local application-support data |
 | Model weights and tokenizers | Local `Models/` folder; persist on disk after quitting |
@@ -21,10 +25,12 @@ The source-check GitHub workflow runs against source files only. Public screensh
 
 ## Permissions and insertion
 
-Microphone permission is used to capture speech. Accessibility permission supports the global shortcut and cross-app text insertion. The current implementation does not need a separate Input Monitoring grant. Setup actions open the corresponding macOS controls; Far Flow cannot grant these permissions itself.
+Microphone permission is used to capture speech. Meeting recording also uses macOS Screen & System Audio Recording permission for the selected app audio; no video output is attached or saved. Browser selection includes all audio from that browser. Accessibility permission supports the global shortcut and cross-app text insertion. The current implementation does not need a separate Input Monitoring grant. Setup actions open the corresponding macOS controls; Far Flow cannot grant these permissions itself.
 
 Text inserted into another app becomes subject to that app's behavior, including any sync or network services it uses. Paste fallback temporarily uses the system clipboard and attempts to restore it without overwriting newer clipboard content. Secure fields and changed destinations are rejected where detected.
 
 ## Quitting
 
-Closing the main dashboard or quitting ends Far Flow's running model host and owned media helper. Disk model files remain installed for the next launch. Minimize keeps dictation available. Open at login is a user-controlled preference.
+Closing the dashboard keeps Far Flow running, including its global shortcut and loaded models. Command–Q or Quit Far Flow ends the running model host and owned media helper. Quitting cancels unfinished dictation; finish recording and processing first to keep its text. Meeting recording stops and flushes partial audio chunks locally before exit. Completed transcript and pending audio can be recovered after relaunch; crashes can lose the unflushed tail, and disk failures can prevent saving. Disk model files remain installed for the next launch. Notes are saved locally independently of dictation-history retention and remain until explicitly deleted or replaced by a backup. Open at login is a user-controlled preference.
+
+Meeting details and backup boundaries: [Local meetings](MEETINGS.md).

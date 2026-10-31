@@ -22,6 +22,39 @@ import XCTest
 }
 
 final class MediaPlaybackTests: XCTestCase {
+    @MainActor func testSpotifyPausesWhenPausedQuickTimeOwnsNowPlayingSlot() {
+        let system=FakeMediaTransport(),spotify=FakeMediaTransport(),session=UUID()
+        system.pid=10;system.playing=false;spotify.pid=20
+        let transport=FallbackMediaTransport(primary:system,fallback:spotify)
+        let service=MediaPlaybackService(transport:transport)
+        service.pause(session:session,enabled:true)
+        XCTAssertEqual(spotify.commands,[1]);XCTAssertTrue(system.commands.isEmpty)
+        service.resume(session:session)
+        XCTAssertEqual(spotify.commands,[1,0]);XCTAssertTrue(system.commands.isEmpty)
+    }
+    @MainActor func testFallbackDoesNotStartPreviouslyPausedSpotify() {
+        let system=FakeMediaTransport(),spotify=FakeMediaTransport(),session=UUID()
+        system.playing=false;spotify.playing=false;spotify.pid=20
+        let service=MediaPlaybackService(transport:FallbackMediaTransport(primary:system,fallback:spotify))
+        service.pause(session:session,enabled:true);service.resume(session:session)
+        XCTAssertTrue(system.commands.isEmpty);XCTAssertTrue(spotify.commands.isEmpty)
+    }
+    @MainActor func testFallbackOwnershipDoesNotResumeAfterAnotherPlayerStarts() {
+        let system=FakeMediaTransport(),spotify=FakeMediaTransport(),session=UUID()
+        system.pid=10;system.playing=false;spotify.pid=20
+        let service=MediaPlaybackService(transport:FallbackMediaTransport(primary:system,fallback:spotify))
+        service.pause(session:session,enabled:true)
+        system.playing=true;service.resume(session:session)
+        XCTAssertEqual(spotify.commands,[1]);XCTAssertTrue(system.commands.isEmpty)
+    }
+    @MainActor func testUnavailableNowPlayingTransportStillAllowsSpotify() {
+        let system=FakeMediaTransport(),spotify=FakeMediaTransport(),session=UUID()
+        system.available=false;system.playing=false;system.pid=0;spotify.pid=20
+        let service=MediaPlaybackService(transport:FallbackMediaTransport(primary:system,fallback:spotify))
+        service.pause(session:session,enabled:true);service.resume(session:session)
+        XCTAssertEqual(spotify.commands,[1,0]);XCTAssertTrue(system.commands.isEmpty)
+    }
+
     @MainActor func testPlayingMediaPausesAndResumesOnce() async {
         let transport = FakeMediaTransport(), session = UUID()
         let service = MediaPlaybackService(transport: transport)

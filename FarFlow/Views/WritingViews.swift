@@ -11,7 +11,7 @@ struct TransformsView: View {
                 Picker("Transform",selection:$model.transformKind){ForEach(TransformKind.allCases){Text($0.title).tag($0)}}.frame(width:250)
                 Spacer()
                 if model.transforming {ProgressView().controlSize(.small)}
-                Button("Transform text",systemImage:"sparkles"){model.runTransform()}.buttonStyle(FlowActionStyle()).disabled(model.transforming || model.transformInput.isEmpty || !model.installedModels.contains("qwen-cleanup"))
+                Button("Transform text",systemImage:"sparkles"){model.runTransform()}.buttonStyle(FlowActionStyle()).disabled(model.meeting.busy || model.state.busy || model.transforming || model.transformInput.isEmpty || !model.installedModels.contains("qwen-cleanup"))
             }
             HStack(alignment:.top,spacing:18) {
                 VStack(alignment:.leading,spacing:10){SectionLabel(title:"Original");TextEditor(text:$model.transformInput).font(.system(size:14)).scrollContentBackground(.hidden).padding(14).background(.primary.opacity(0.025),in:RoundedRectangle(cornerRadius:10)).overlay(RoundedRectangle(cornerRadius:10).strokeBorder(.primary.opacity(0.08))).accessibilityIdentifier("transform.input")}
@@ -32,34 +32,94 @@ struct TransformsView: View {
 
 struct ScratchpadView: View {
     @Bindable var model: AppModel
-    @State private var selection: UUID?
-    @State private var deleteNote=false
-    var selectedIndex: Int? {model.data.notes.firstIndex{$0.id==selection}}
+    @State private var search = ""
+    @State private var deleting: ScratchNote?
+    private var notes: [ScratchNote] {
+        model.data.notes.filter {
+            search.isEmpty || $0.title.localizedStandardContains(search) || $0.text.localizedStandardContains(search)
+        }.sorted { $0.updatedAt > $1.updatedAt }
+    }
     var body: some View {
-        VStack(alignment:.leading,spacing:0) {
-            PageHeading(title:"Scratchpad",subtitle:"A place for longer thoughts. Saved on this Mac.") { Button("New note",systemImage:"plus"){let note=ScratchNote();model.data.notes.insert(note,at:0);selection=note.id}.buttonStyle(FlowActionStyle()).accessibilityIdentifier("scratchpad.new") }
-            HStack(spacing:0) {
-                VStack(alignment:.leading,spacing:0) {
-                    if model.data.notes.isEmpty {Text("No notes yet").foregroundStyle(.secondary).font(.caption).padding(16)}
-                    ScrollView {VStack(spacing:3){ForEach(model.data.notes){note in Button{selection=note.id}label:{VStack(alignment:.leading,spacing:6){Text(note.title.isEmpty ? "Untitled note":note.title).font(.system(size:13,weight:.medium)).lineLimit(1);Text(note.updatedAt.formatted(date:.abbreviated,time:.omitted)).font(.system(size:10)).foregroundStyle(.secondary)}.frame(maxWidth:.infinity,alignment:.leading).padding(12).background(selection==note.id ? FlowTheme.green.opacity(0.09):.clear,in:RoundedRectangle(cornerRadius:8))}.buttonStyle(.plain)}}.padding(6)}
-                }.frame(width:185)
+        VStack(alignment: .leading, spacing: 18) {
+            PageHeading(title: "Notes", subtitle: "Write or dictate. Your notes stay on this Mac.") {
+                Button("New note", systemImage: "plus") { search=""; model.createNote() }
+                    .buttonStyle(FlowActionStyle()).accessibilityIdentifier("notes.new")
+            }
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 8) {
+                    TextField("Search notes", text: $search).textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("notes.search").padding(10)
+                    if notes.isEmpty {
+                        Text(search.isEmpty ? "No notes yet" : "No matching notes")
+                            .font(.caption).foregroundStyle(.secondary).padding(.horizontal, 16)
+                    }
+                    ScrollView {
+                        LazyVStack(spacing: 3) {
+                            ForEach(notes) { note in
+                                Button { model.data.preferences.selectedNoteID=note.id } label: {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(note.title.isEmpty ? "Untitled note" : note.title)
+                                            .font(.system(size: 13, weight: .medium)).lineLimit(1)
+                                        Text(note.text.isEmpty ? "Empty note" : note.text)
+                                            .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                        Text(note.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                                            .font(.system(size: 10)).foregroundStyle(.secondary)
+                                    }.frame(maxWidth: .infinity, alignment: .leading).padding(12)
+                                        .background(model.selectedNote?.id == note.id ? FlowTheme.green.opacity(0.09) : .clear, in: RoundedRectangle(cornerRadius: 8))
+                                }.buttonStyle(.plain).accessibilityIdentifier("notes.row.\(note.id)")
+                            }
+                        }.padding(6)
+                    }
+                }.frame(width: 220)
                 Divider()
-                if let index=selectedIndex {
-                    VStack(alignment:.leading,spacing:16) {
-                        TextField("Untitled note",text:$model.data.notes[index].title).font(.title2.weight(.medium)).textFieldStyle(.plain).accessibilityIdentifier("scratchpad.title")
-                        HStack {
-                            Text("Saved locally").font(.caption).foregroundStyle(.secondary);Spacer()
-                            Button(model.state == .recording ? "Stop":"Dictate",systemImage:"mic"){if model.state == .recording {model.stopRecording()}else{model.startRecording(noteID:selection)}}.disabled(!model.canRecord || (model.state.busy && model.state != .recording))
-                            Menu { Button("Copy note"){InsertionService.copy(model.data.notes[index].text)};Button("Export as text"){let note=model.data.notes[index];FilePanels.save(name:"\(note.title.isEmpty ? "Far Flow Note":note.title).txt",type:.plainText){url in do{try note.text.write(to:url,atomically:true,encoding:.utf8)}catch{model.error=error.localizedDescription}}};Divider();Button("Delete note",role:.destructive){deleteNote=true} } label:{Image(systemName:"ellipsis")}.menuStyle(.borderlessButton).frame(width:25)
-                        }
-                        TextEditor(text:$model.data.notes[index].text).font(.system(size:15)).scrollContentBackground(.hidden).accessibilityIdentifier("scratchpad.editor")
-                    }.padding(22)
-                    .onChange(of:model.data.notes[index].text){_,_ in if let i=selectedIndex {model.data.notes[i].updatedAt = .now}}
-                }else{EmptyFlow(symbol:"square.and.pencil",title:"Room to think",detail:"Create a note, then write or dictate. Your notes are stored locally.")}
-            }.frame(maxHeight:.infinity).overlay(RoundedRectangle(cornerRadius:12).strokeBorder(.primary.opacity(0.08)))
+                if let note=model.selectedNote {
+                    noteEditor(note).id(note.id)
+                } else {
+                    EmptyFlow(symbol: "square.and.pencil", title: "Room to think", detail: "Create a note, then write or dictate. Notes are kept until you delete them.")
+                }
+            }.frame(maxHeight: .infinity).overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.primary.opacity(0.08)))
         }.padding(34)
-        .onAppear { if selection==nil {selection=model.data.notes.first?.id} }
-        .confirmationDialog("Delete this note?",isPresented:$deleteNote,titleVisibility:.visible){Button("Delete note",role:.destructive){model.data.notes.removeAll{$0.id==selection};selection=model.data.notes.first?.id}}
+        .onChange(of: model.selectedNote?.id) { _,_ in search="" }
+        .confirmationDialog("Delete this note?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting=nil } }), titleVisibility: .visible) {
+            Button("Delete note", role: .destructive) {
+                if let note=deleting { model.data.deleteNote(id: note.id) }
+                deleting=nil
+            }
+        } message: { Text("This removes the note from this Mac. Export a copy first if you want to keep it.") }
+    }
+    private func noteEditor(_ note: ScratchNote) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            TextField("Untitled note", text: Binding(
+                get: { model.data.notes.first { $0.id == note.id }?.title ?? "" },
+                set: { model.data.updateNote(id: note.id, title: $0) }
+            )).font(.title2.weight(.medium)).textFieldStyle(.plain).accessibilityIdentifier("notes.title")
+            HStack {
+                Text(model.saveError == nil ? "Saved on this Mac" : "Changes not saved")
+                    .font(.caption).foregroundStyle(model.saveError == nil ? Color.secondary : .red)
+                Spacer()
+                Button(model.state == .recording ? "Stop" : "Dictate", systemImage: "mic") {
+                    if model.state == .recording { model.stopRecording() }
+                    else { model.startRecording(noteID: note.id, handsFree: true) }
+                }.disabled(model.state != .recording && (!model.canRecord || model.state.busy))
+                Menu {
+                    Button("Copy note") { InsertionService.copy(note.text) }
+                    Button("Export as text…") {
+                        FilePanels.save(name: "\(note.title.isEmpty ? "Far Flow Note" : note.title).txt", type: .plainText) { url in
+                            do { try note.text.write(to: url, atomically: true, encoding: .utf8) }
+                            catch { model.error=error.localizedDescription }
+                        }
+                    }
+                    Divider()
+                    Button("Delete note…", role: .destructive) { deleting=note }
+                } label: { Image(systemName: "ellipsis") }.menuStyle(.borderlessButton).frame(width: 25).accessibilityLabel("Note actions")
+            }
+            TextEditor(text: Binding(
+                get: { model.data.notes.first { $0.id == note.id }?.text ?? "" },
+                set: { model.data.updateNote(id: note.id, text: $0) }
+            )).font(.system(size: 15)).scrollContentBackground(.hidden).accessibilityIdentifier("notes.editor")
+            Text("Hold \(model.shortcutTitle) or use Dictate to append speech to this note. Each recording can last up to five minutes.")
+                .font(.caption).foregroundStyle(.secondary)
+        }.padding(22)
     }
 }
 

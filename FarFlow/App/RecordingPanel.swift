@@ -15,7 +15,7 @@ import FarFlowCore
         panel.collectionBehavior=[.canJoinAllSpaces,.fullScreenAuxiliary,.stationary]
         panel.title="Far Flow recording controls";panel.contentView=RecordingHostingView(rootView:RecordingBar(model:model));panel.setAccessibilityLabel("Far Flow recording controls")
     }
-    private var expanded:Bool {model?.state.busy == true}
+    private var expanded:Bool {model?.state.busy == true || model?.meeting.activeID != nil}
     func show() {
         if !panel.isVisible,let model {
             let mouse=NSEvent.mouseLocation
@@ -35,7 +35,7 @@ import FarFlowCore
         guard target != panel.frame else{return}
         if animated && panel.isVisible && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {NSAnimationContext.runAnimationGroup{context in context.duration=0.2;context.timingFunction=CAMediaTimingFunction(name:.easeOut);panel.animator().setFrame(target,display:true)}}else{panel.setFrame(target,display:true)}
     }
-    func hideUnlessPersistent(){if model?.data.preferences.alwaysShowBar != true{panel.orderOut(nil)}}
+    func hideUnlessPersistent(){if model?.data.preferences.alwaysShowBar != true && model?.meeting.activeID == nil{panel.orderOut(nil)}}
     func hideAfterDelay(){Task{try? await Task.sleep(for:.seconds(1.5));if self.model?.state == .idle && self.dragAnchor==nil{self.hideUnlessPersistent()}}}
     func dragToMouse(){let mouse=NSEvent.mouseLocation;if dragAnchor==nil{dragAnchor=NSPoint(x:mouse.x-panel.frame.minX,y:mouse.y-panel.frame.minY)};if let anchor=dragAnchor{panel.setFrameOrigin(NSPoint(x:mouse.x-anchor.x,y:mouse.y-anchor.y))}}
     func finishDragging(){
@@ -53,12 +53,21 @@ private final class RecordingHostingView<Content:View>:NSHostingView<Content>{ov
 struct RecordingBar:View {
     @Bindable var model:AppModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private var expanded:Bool {model.state.busy}
+    private var expanded:Bool {model.state.busy || model.meeting.activeID != nil}
     var body:some View {
         HStack(spacing:11){
             if expanded {FlowMark().fill(Color(white:0.94)).frame(width:17,height:20)}
             else {Button{model.toggleRecording()}label:{FlowMark().fill(Color(white:0.94)).frame(width:16,height:19).frame(width:25,height:28)}.buttonStyle(.plain).help(model.canRecord ? "Start hands-free dictation":"Loading local speech model").disabled(!model.canRecord).accessibilityLabel("Start hands-free dictation")}
-            if model.state == .recording {
+            if model.meeting.activeID != nil {
+                Button { model.page = .meetings; model.openHub() } label: {
+                    Text(model.meeting.recording ? "Meeting · REC" : "Transcribing…").font(.system(size:12,weight:.medium))
+                }.buttonStyle(.plain).foregroundStyle(model.meeting.recording ? Color.red : Color.white)
+                Spacer(minLength:0)
+                if model.meeting.recording {
+                    Button { model.meeting.stop() } label: { Image(systemName:"stop.fill").frame(width:26,height:26) }
+                        .buttonStyle(.plain).accessibilityLabel("Stop meeting recording")
+                } else { ProgressView().controlSize(.small).colorScheme(.dark) }
+            }else if model.state == .recording {
                 Rectangle().fill(.white.opacity(0.15)).frame(width:0.5,height:19)
                 TimelineView(.animation(minimumInterval:0.08,paused:reduceMotion)){context in
                     let phase=context.date.timeIntervalSinceReferenceDate
@@ -77,7 +86,8 @@ struct RecordingBar:View {
         .contentShape(Capsule()).gesture(DragGesture(minimumDistance:3).onChanged{_ in model.dragRecordingBar()}.onEnded{_ in model.finishDraggingRecordingBar()})
         .animation(reduceMotion ? nil:.easeOut(duration:0.2),value:expanded)
         .onChange(of:model.state){_,_ in model.resizeRecordingBar()}
-        .help("Far Flow · Drag to move · Hold Fn to dictate")
-        .contextMenu{Button("Open Far Flow"){model.openHub()};if !model.lastText.isEmpty{Button("Copy last dictation"){InsertionService.copy(model.lastText)}};Button("Reset position"){model.resetRecordingBarPosition()};Divider();Button("Quit Far Flow"){NSApp.terminate(nil)}}
+        .onChange(of:model.meeting.activeID){_,_ in model.resizeRecordingBar()}
+        .help(model.meeting.busy ? model.meeting.status : model.meeting.error ?? (model.state.busy ? model.state.title : model.lastText.isEmpty ? "Far Flow · Drag to move · Hold \(model.shortcutTitle) to dictate" : "\(model.lastStatus) · Right-click to copy last dictation"))
+        .contextMenu{Button("Open Far Flow"){model.openHub()};Button("Open meetings"){model.page = .meetings;model.openHub()};Button("New note"){model.createNote();model.openHub()};if !model.lastText.isEmpty{Button("Copy last dictation"){InsertionService.copy(model.lastText)}};Button("Reset position"){model.resetRecordingBarPosition()};Divider();Button("Quit Far Flow"){NSApp.terminate(nil)}}
     }
 }

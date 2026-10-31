@@ -1,12 +1,14 @@
 # Building Far Flow
 
+For AI-assisted recipient installation, follow the complete ordered procedure in [README](../README.md#install-with-an-ai-assistant--follow-these-steps-exactly). Keep the app, bundle ID, dependencies and model manifest unchanged. Distribution gates are in [RELEASING](RELEASING.md).
+
 ## Requirements
 
 - Apple Silicon Mac running macOS 26 or later.
 - Full Xcode 26 with command-line tools selected. The verified environment used Xcode 26.6 and an M4 Mac with 16 GB RAM.
 - XcodeGen available on PATH; Python 3 for optional provisioning and fixtures.
 - Network access to resolve Swift packages and explicitly download model files.
-- Several GB of disk space for models, plus Xcode build products and package caches.
+- At least 20 GB free after Xcode installation, for models, staging and build caches. Run `./scripts/preflight.sh` to check prerequisites.
 
 Install the Metal toolchain if Xcode reports that it is missing:
 
@@ -51,7 +53,7 @@ Use **Models → Download model**, or import an existing folder matching the pin
 
 Exact revisions and file hashes are in `FarFlow/Resources/ModelManifest.json`. Model weights are not included in Git.
 
-For a development machine, `python3 scripts/provision_models.py` downloads the pinned files to your local application-support directory and refreshes the bundled manifest. This is an explicit network operation. The app itself never downloads missing files during transcription.
+For a reproducible installation, quit Far Flow, run `python3 scripts/install_models.py`, then `python3 scripts/install_models.py --verify`. These use the checked-in manifest without changing it. On 8 GB machines start with `--speech-only`. The older `provision_models.py` is a maintainer manifest-generation utility, not a recipient installation step. The app never downloads missing files during transcription.
 
 ## Tests
 

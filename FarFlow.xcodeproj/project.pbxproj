@@ -17,12 +17,16 @@
 		2A9F7856B612BA362C7AF607 /* PersonalizationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4E21D22A282CD44156F454 /* PersonalizationViews.swift */; };
 		2CB1508942C3ADCB62839B8E /* AudioCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71FC7B9AF4817CC33EC74581 /* AudioCaptureTests.swift */; };
 		2DE82A53FF6C1DBE48E876AC /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A2DE566A0E1A0018F5A3F752 /* libsqlite3.tbd */; };
+		2E304C3EAE10B014461A8908 /* MeetingCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6244CD25F68A0FB6C8F50F /* MeetingCapture.swift */; };
 		2E7975BCC50B77CB898FEF7C /* Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF2691A03CE3D7707237415 /* Placeholder.swift */; };
 		2FB5A1D9F48EF3D061995654 /* FarFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4001C2F5CC984758899F84DF /* FarFlowApp.swift */; };
 		3051823A6F5842AA6C73FC3D /* Marcellus-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 75DDFBF8A8FA38DAD7335A8D /* Marcellus-OFL.txt */; };
+		31EF8E1007C3E231F7744EAD /* MeetingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 271847E41A89668D05D9CCC9 /* MeetingsView.swift */; };
 		353F8B090310DC6E18A55D37 /* ZalandoSans-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 92EBC78549E1A42E529C39EB /* ZalandoSans-OFL.txt */; };
+		37EF3C50BE877A9808EC0CD4 /* InsertionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4362A24ECF7D1B02F6D4D /* InsertionTests.swift */; };
 		3CC1450BC56CA39472662571 /* BenchMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA0215FCD244DEAE610B171 /* BenchMain.swift */; };
 		3CF33215FD7BF8EFBE452640 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD6FAE736B4085E15C6B28B /* Theme.swift */; };
+		3D027CF7C0ED027267787A97 /* MeetingPromptPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267A574FD885903D1CC744F1 /* MeetingPromptPanel.swift */; };
 		461DC0C120BB487FDE9893D3 /* Archivo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5A25D615C4923AA83D21C962 /* Archivo.ttf */; };
 		467BD43ECBAE1B478B0A1AE7 /* MediaPlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D160F7B4A32ADE7EAB40822 /* MediaPlaybackService.swift */; };
 		493E1C6DF146C749272DBC91 /* ThirdPartyNotices.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5AF1C5B86FB6BB7FF10BBCFD /* ThirdPartyNotices.txt */; };
@@ -31,28 +35,39 @@
 		506C02EAB3917CCF75766761 /* MediaPlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D160F7B4A32ADE7EAB40822 /* MediaPlaybackService.swift */; };
 		51B28D4C2AC89BBE0E26C1A1 /* TextPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAFB1C6FF57B265A04865C9 /* TextPipeline.swift */; };
 		5C4BCA546F02E69EE5231C8F /* MediaPlaybackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7307BE03B4356E0BF460FE41 /* MediaPlaybackTests.swift */; };
+		604432C7F8F29B81B7EAC34B /* MeetingMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7502CDE7DCF9264D47D3D7F /* MeetingMonitor.swift */; };
+		61EAF32EAD02A6DE5745B0DC /* InsertionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80F8E24C610DE16AFFE77FB4 /* InsertionService.swift */; };
 		6BDDCECFBB5A5902C9B756DE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8E5227FBEA9739C0EE9A43 /* RootView.swift */; };
 		6CAD7F6B00024D554A64C122 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E78384399FA254325C73B /* Models.swift */; };
 		6D0B22FB7A342C7B1E0387E2 /* FarFlowCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		748A2555BF82B2C964358613 /* MeetingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CD99DCD5565E790D37EC3F8 /* MeetingController.swift */; };
 		75E44B451D545DC3CF99CAA6 /* FarFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289B49DDECD7E99DCDAEE189 /* FarFlowTests.swift */; };
 		771D4E7940BD43920D28CC3D /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = 559169B5AF886C106C224828 /* FluidAudio */; };
 		849D9A2B1DED739E35110FD5 /* RecordingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AF20914C541AA41CE66F6 /* RecordingPanel.swift */; };
 		84AA4212D83CFB60FBA623BB /* AudioEngineBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BE783F36E9BE695E349B45 /* AudioEngineBridge.m */; };
 		87769B8A5C6ED368E863FFCC /* Inference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 043469C289BADAE70877DCB1 /* Inference.swift */; };
+		8A6A4A33C18871B1CEEA02E5 /* MeetingMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7502CDE7DCF9264D47D3D7F /* MeetingMonitor.swift */; };
 		9458381D5B74E632C710696C /* FarFlowCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		974E01DBA2C91AE264494CCA /* AudioEngineBridgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA808DE955F3A3AD868417E /* AudioEngineBridgeTests.m */; };
+		98A9FCB2DF253ED1CC69C0F9 /* Meetings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9460886A8164D68E51DD9F28 /* Meetings.swift */; };
 		9CEE9406E7EBBE0244A77810 /* SettingsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0B7D591DE4034A6FF77EE2 /* SettingsViews.swift */; };
 		9FB24A5954202D5DDA3A97C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEC3CD9EBC49FCD8C1A0005D /* Assets.xcassets */; };
+		A0D4AFC93E52F04F1FCF2834 /* MeetingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CD99DCD5565E790D37EC3F8 /* MeetingController.swift */; };
+		A85EA6B6A044AD6F0D62F977 /* HardwareProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9ADAD346B230156D77E9BC9 /* HardwareProfile.swift */; };
+		AAC86E36CB133A09BD87D5A1 /* MeetingCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6244CD25F68A0FB6C8F50F /* MeetingCapture.swift */; };
 		B56B0A72363120AD9EEEBF98 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 336B63709A2D3ED3CAD42B79 /* ShortcutService.swift */; };
 		B5761C719029E55F0BA67FA0 /* InsertionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80F8E24C610DE16AFFE77FB4 /* InsertionService.swift */; };
 		B6212BD2CF519534BE3959C0 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = FCEEF96533473B570CF05284 /* WhisperKit */; };
 		BB9752D40191CD5A846238E4 /* FarFlowCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */; };
 		C31ED1FE7F69E1DF55AC5793 /* media-bridge.pl in Resources */ = {isa = PBXBuildFile; fileRef = 309895529B9441FEEC231416 /* media-bridge.pl */; };
+		C3A07C5E54E8E2DFF6507998 /* MeetingDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA86EB90C21AC8C634A709A /* MeetingDetectionTests.swift */; };
 		C4A88D68E417B52CF2C8454A /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 689C667E6900A0AB65BCB34E /* AppModel.swift */; };
 		C63EBF79216EF4DDE8EB773F /* RecordingBarGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E80891DC7462DEEECBA88107 /* RecordingBarGeometry.swift */; };
 		C7E644F257CD0D28A58475E5 /* Marcellus-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F5E849D754EEE03740E181C0 /* Marcellus-Regular.ttf */; };
+		CDE3E5911495CF7A25FF8BE5 /* MeetingDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF64A559504AD4C465081223 /* MeetingDetection.swift */; };
 		D03970B958C9E61978EFFA68 /* ModelInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5531B4AC7C6E0D3E9A958A85 /* ModelInstaller.swift */; };
 		D562A2DF4D0A371EF12D2409 /* FarFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056BF872BC4B9EB226DABF0A /* FarFlowUITests.swift */; };
+		D758200FE5AF9D1A09264D97 /* MeetingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E13B259CDCBE03483915216 /* MeetingTests.swift */; };
 		DB6FD2147A3899CDE554BE85 /* DictationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2876BAE35E389A814B3BD58 /* DictationView.swift */; };
 		E2BF36F7D0EA8EF13958B3BF /* FarFlowCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */; };
 		EB409FB2C3E9948B89CEB07D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC22D385752335F8E44A40DE /* Foundation.framework */; };
@@ -133,8 +148,11 @@
 		043469C289BADAE70877DCB1 /* Inference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Inference.swift; sourceTree = "<group>"; };
 		056BF872BC4B9EB226DABF0A /* FarFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FarFlowUITests.swift; sourceTree = "<group>"; };
 		19EDC003CE19EF5FF3F6B4D8 /* FarFlow-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FarFlow-Bridging-Header.h"; sourceTree = "<group>"; };
+		1CD99DCD5565E790D37EC3F8 /* MeetingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingController.swift; sourceTree = "<group>"; };
 		1EEE0AA0A0B495B7BADBD4BB /* FarFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FarFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		221F6D138ABC907DDED9B693 /* LocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStore.swift; sourceTree = "<group>"; };
+		267A574FD885903D1CC744F1 /* MeetingPromptPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingPromptPanel.swift; sourceTree = "<group>"; };
+		271847E41A89668D05D9CCC9 /* MeetingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingsView.swift; sourceTree = "<group>"; };
 		289B49DDECD7E99DCDAEE189 /* FarFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FarFlowTests.swift; sourceTree = "<group>"; };
 		2ADA71C2D8328AD37A04C42F /* FarFlowUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FarFlowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B8E5227FBEA9739C0EE9A43 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -143,6 +161,7 @@
 		336B63709A2D3ED3CAD42B79 /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutService.swift; sourceTree = "<group>"; };
 		3AD6FAE736B4085E15C6B28B /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		3CED5BCDC0C1FF3FB4037847 /* Archivo-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Archivo-OFL.txt"; sourceTree = "<group>"; };
+		3FA86EB90C21AC8C634A709A /* MeetingDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingDetectionTests.swift; sourceTree = "<group>"; };
 		4001C2F5CC984758899F84DF /* FarFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FarFlowApp.swift; sourceTree = "<group>"; };
 		4A211A7EE8C33BBA85925698 /* FarFlowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FarFlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5531B4AC7C6E0D3E9A958A85 /* ModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInstaller.swift; sourceTree = "<group>"; };
@@ -151,6 +170,8 @@
 		5AF1C5B86FB6BB7FF10BBCFD /* ThirdPartyNotices.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ThirdPartyNotices.txt; sourceTree = "<group>"; };
 		62FE1E54B24F4D2B4076AE3C /* FarFlowCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FarFlowCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		689C667E6900A0AB65BCB34E /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		6B6244CD25F68A0FB6C8F50F /* MeetingCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingCapture.swift; sourceTree = "<group>"; };
+		6E13B259CDCBE03483915216 /* MeetingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingTests.swift; sourceTree = "<group>"; };
 		71FC7B9AF4817CC33EC74581 /* AudioCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureTests.swift; sourceTree = "<group>"; };
 		7307BE03B4356E0BF460FE41 /* MediaPlaybackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlaybackTests.swift; sourceTree = "<group>"; };
 		75DDFBF8A8FA38DAD7335A8D /* Marcellus-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Marcellus-OFL.txt"; sourceTree = "<group>"; };
@@ -160,11 +181,14 @@
 		835AF20914C541AA41CE66F6 /* RecordingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingPanel.swift; sourceTree = "<group>"; };
 		8E5F381769D82A70763E4B63 /* AudioEngineBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioEngineBridge.h; sourceTree = "<group>"; };
 		92EBC78549E1A42E529C39EB /* ZalandoSans-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ZalandoSans-OFL.txt"; sourceTree = "<group>"; };
+		9460886A8164D68E51DD9F28 /* Meetings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meetings.swift; sourceTree = "<group>"; };
 		9BF2691A03CE3D7707237415 /* Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholder.swift; sourceTree = "<group>"; };
 		9D160F7B4A32ADE7EAB40822 /* MediaPlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlaybackService.swift; sourceTree = "<group>"; };
 		A2DE566A0E1A0018F5A3F752 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		A7502CDE7DCF9264D47D3D7F /* MeetingMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMonitor.swift; sourceTree = "<group>"; };
 		AAA808DE955F3A3AD868417E /* AudioEngineBridgeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioEngineBridgeTests.m; sourceTree = "<group>"; };
 		AC22D385752335F8E44A40DE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		AF64A559504AD4C465081223 /* MeetingDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingDetection.swift; sourceTree = "<group>"; };
 		BA23474EB8A79522B126507E /* FarFlowBench */ = {isa = PBXFileReference; includeInIndex = 0; path = FarFlowBench; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0D1CC1E9DE74CB9F1920084 /* FarFlowMediaBridge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FarFlowMediaBridge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDF1260B960A376702D7227A /* FarFlow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FarFlow.entitlements; sourceTree = "<group>"; };
@@ -172,10 +196,12 @@
 		CEC3CD9EBC49FCD8C1A0005D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D2876BAE35E389A814B3BD58 /* DictationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationView.swift; sourceTree = "<group>"; };
 		D61D875CAEBDD68485F7AE9C /* ModelManifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ModelManifest.json; sourceTree = "<group>"; };
+		D9ADAD346B230156D77E9BC9 /* HardwareProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareProfile.swift; sourceTree = "<group>"; };
 		DC8743301BEE52001E8D0BC6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E693E01B80893A57C24A812E /* ZalandoSans.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ZalandoSans.ttf; sourceTree = "<group>"; };
 		E80891DC7462DEEECBA88107 /* RecordingBarGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingBarGeometry.swift; sourceTree = "<group>"; };
 		EA4E21D22A282CD44156F454 /* PersonalizationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalizationViews.swift; sourceTree = "<group>"; };
+		EAB4362A24ECF7D1B02F6D4D /* InsertionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertionTests.swift; sourceTree = "<group>"; };
 		F5A1BDADB2BA108CC587B714 /* WritingViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WritingViews.swift; sourceTree = "<group>"; };
 		F5E849D754EEE03740E181C0 /* Marcellus-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Marcellus-Regular.ttf"; sourceTree = "<group>"; };
 		F99E78384399FA254325C73B /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -240,6 +266,10 @@
 				4001C2F5CC984758899F84DF /* FarFlowApp.swift */,
 				80F8E24C610DE16AFFE77FB4 /* InsertionService.swift */,
 				9D160F7B4A32ADE7EAB40822 /* MediaPlaybackService.swift */,
+				6B6244CD25F68A0FB6C8F50F /* MeetingCapture.swift */,
+				1CD99DCD5565E790D37EC3F8 /* MeetingController.swift */,
+				A7502CDE7DCF9264D47D3D7F /* MeetingMonitor.swift */,
+				267A574FD885903D1CC744F1 /* MeetingPromptPanel.swift */,
 				835AF20914C541AA41CE66F6 /* RecordingPanel.swift */,
 				336B63709A2D3ED3CAD42B79 /* ShortcutService.swift */,
 			);
@@ -263,6 +293,7 @@
 			isa = PBXGroup;
 			children = (
 				D2876BAE35E389A814B3BD58 /* DictationView.swift */,
+				271847E41A89668D05D9CCC9 /* MeetingsView.swift */,
 				EA4E21D22A282CD44156F454 /* PersonalizationViews.swift */,
 				2B8E5227FBEA9739C0EE9A43 /* RootView.swift */,
 				CE0B7D591DE4034A6FF77EE2 /* SettingsViews.swift */,
@@ -340,7 +371,10 @@
 				71FC7B9AF4817CC33EC74581 /* AudioCaptureTests.swift */,
 				AAA808DE955F3A3AD868417E /* AudioEngineBridgeTests.m */,
 				289B49DDECD7E99DCDAEE189 /* FarFlowTests.swift */,
+				EAB4362A24ECF7D1B02F6D4D /* InsertionTests.swift */,
 				7307BE03B4356E0BF460FE41 /* MediaPlaybackTests.swift */,
+				3FA86EB90C21AC8C634A709A /* MeetingDetectionTests.swift */,
+				6E13B259CDCBE03483915216 /* MeetingTests.swift */,
 			);
 			path = FarFlowTests;
 			sourceTree = "<group>";
@@ -371,8 +405,11 @@
 			isa = PBXGroup;
 			children = (
 				02410E35F24017EFEC8D0CB9 /* FnGesture.swift */,
+				D9ADAD346B230156D77E9BC9 /* HardwareProfile.swift */,
 				043469C289BADAE70877DCB1 /* Inference.swift */,
 				221F6D138ABC907DDED9B693 /* LocalStore.swift */,
+				AF64A559504AD4C465081223 /* MeetingDetection.swift */,
+				9460886A8164D68E51DD9F28 /* Meetings.swift */,
 				5531B4AC7C6E0D3E9A958A85 /* ModelInstaller.swift */,
 				F99E78384399FA254325C73B /* Models.swift */,
 				9BF2691A03CE3D7707237415 /* Placeholder.swift */,
@@ -609,8 +646,15 @@
 				84AA4212D83CFB60FBA623BB /* AudioEngineBridge.m in Sources */,
 				974E01DBA2C91AE264494CCA /* AudioEngineBridgeTests.m in Sources */,
 				75E44B451D545DC3CF99CAA6 /* FarFlowTests.swift in Sources */,
+				61EAF32EAD02A6DE5745B0DC /* InsertionService.swift in Sources */,
+				37EF3C50BE877A9808EC0CD4 /* InsertionTests.swift in Sources */,
 				506C02EAB3917CCF75766761 /* MediaPlaybackService.swift in Sources */,
 				5C4BCA546F02E69EE5231C8F /* MediaPlaybackTests.swift in Sources */,
+				AAC86E36CB133A09BD87D5A1 /* MeetingCapture.swift in Sources */,
+				748A2555BF82B2C964358613 /* MeetingController.swift in Sources */,
+				C3A07C5E54E8E2DFF6507998 /* MeetingDetectionTests.swift in Sources */,
+				8A6A4A33C18871B1CEEA02E5 /* MeetingMonitor.swift in Sources */,
+				D758200FE5AF9D1A09264D97 /* MeetingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -633,6 +677,11 @@
 				2FB5A1D9F48EF3D061995654 /* FarFlowApp.swift in Sources */,
 				B5761C719029E55F0BA67FA0 /* InsertionService.swift in Sources */,
 				467BD43ECBAE1B478B0A1AE7 /* MediaPlaybackService.swift in Sources */,
+				2E304C3EAE10B014461A8908 /* MeetingCapture.swift in Sources */,
+				A0D4AFC93E52F04F1FCF2834 /* MeetingController.swift in Sources */,
+				604432C7F8F29B81B7EAC34B /* MeetingMonitor.swift in Sources */,
+				3D027CF7C0ED027267787A97 /* MeetingPromptPanel.swift in Sources */,
+				31EF8E1007C3E231F7744EAD /* MeetingsView.swift in Sources */,
 				2A9F7856B612BA362C7AF607 /* PersonalizationViews.swift in Sources */,
 				849D9A2B1DED739E35110FD5 /* RecordingPanel.swift in Sources */,
 				6BDDCECFBB5A5902C9B756DE /* RootView.swift in Sources */,
@@ -648,8 +697,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				18B5A58F64379CADF579DE95 /* FnGesture.swift in Sources */,
+				A85EA6B6A044AD6F0D62F977 /* HardwareProfile.swift in Sources */,
 				87769B8A5C6ED368E863FFCC /* Inference.swift in Sources */,
 				0A8294E38CAFADC9D663F968 /* LocalStore.swift in Sources */,
+				CDE3E5911495CF7A25FF8BE5 /* MeetingDetection.swift in Sources */,
+				98A9FCB2DF253ED1CC69C0F9 /* Meetings.swift in Sources */,
 				D03970B958C9E61978EFFA68 /* ModelInstaller.swift in Sources */,
 				6CAD7F6B00024D554A64C122 /* Models.swift in Sources */,
 				2E7975BCC50B77CB898FEF7C /* Placeholder.swift in Sources */,

@@ -23,6 +23,7 @@ struct RootView: View {
                 case .styles: StylesView(model:model)
                 case .transforms: TransformsView(model:model)
                 case .scratchpad: ScratchpadView(model:model)
+                case .meetings: MeetingsView(model:model)
                 case .insights: InsightsView(model:model)
                 case .models: ModelsView(model:model)
                 case .settings: PreferencesView(model:model)
@@ -31,31 +32,31 @@ struct RootView: View {
         }.font(FlowTheme.body()).foregroundStyle(FlowTheme.ink).buttonStyle(FlowUtilityStyle())
         .frame(minWidth:1040,minHeight:760).tint(FlowTheme.green)
         .ignoresSafeArea(.container,edges:.top)
-        .background(MainWindowCloseObserver())
+        .safeAreaInset(edge:.bottom) {
+            if let message=model.saveError {
+                HStack {
+                    Label(message,systemImage:"exclamationmark.triangle").font(.caption)
+                    Spacer()
+                    Button("Retry save") { model.save() }
+                    Button("Export data…") { FilePanels.save(name:"Far Flow Recovery.json") { model.exportData(to:$0) } }
+                }.padding(12).background(.regularMaterial)
+            }
+        }
         .sheet(isPresented:$model.showOnboarding) { SetupView(model:model) }
         .sheet(isPresented:$model.showTranscript) { TranscriptSheet(model:model) }
         .alert("Far Flow",isPresented:Binding(get:{model.error != nil},set:{if !$0 {model.error=nil}})) { Button("OK") { model.error=nil } } message: { Text(model.error ?? "") }
-        .onChange(of:model.data.preferences) { _,_ in model.preferencesChanged() }
-        .onReceive(NotificationCenter.default.publisher(for:.openFarFlowHub)) { _ in openWindow(id:"hub") }
+        .onChange(of:model.data.preferences) { old,new in
+            // Selecting a note does not reconfigure shortcuts, appearance or retention.
+            var previous=old; previous.selectedNoteID=new.selectedNoteID
+            if previous != new { model.preferencesChanged() }
+        }
+        .onAppear {
+            // Keep the scene opener available after its content leaves the screen.
+            model.showHub = { openWindow(id:"hub"); NSApp.activate(ignoringOtherApps:true) }
+        }
     }
     private func sidebarRow(_ page:FlowPage)->some View {
         Button {model.page=page} label:{HStack(spacing:14){Image(systemName:page.symbol).font(.system(size:16,weight:.regular)).frame(width:20);Text(page.rawValue).font(FlowTheme.body(13));Spacer();if page == .models && !model.speechReady {Circle().fill(.orange).frame(width:5,height:5)}}.foregroundStyle(FlowTheme.sidebarInk).padding(.horizontal,16).frame(height:43).background(model.page==page ? Color(red:0.22,green:0.21,blue:0.18):.clear,in:RoundedRectangle(cornerRadius:8))}.buttonStyle(.plain).padding(.horizontal,12).accessibilityIdentifier("nav.\(page.rawValue.lowercased())")
-    }
-}
-
-/// The floating panel is another window, so observe the dashboard explicitly.
-struct MainWindowCloseObserver:NSViewRepresentable {
-    func makeNSView(context:Context)->CloseObservingView {CloseObservingView()}
-    func updateNSView(_ view:CloseObservingView,context:Context) {}
-    final class CloseObservingView:NSView {
-        private var observer:NSObjectProtocol?
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            if let observer {NotificationCenter.default.removeObserver(observer);self.observer=nil}
-            guard let window else{return}
-            observer=NotificationCenter.default.addObserver(forName:NSWindow.willCloseNotification,object:window,queue:.main){_ in NSApp.terminate(nil)}
-        }
-        deinit {if let observer {NotificationCenter.default.removeObserver(observer)}}
     }
 }
 
@@ -68,7 +69,12 @@ struct TranscriptSheet: View {
             Text(model.lastStatus).font(.subheadline).foregroundStyle(.secondary)
             Picker("Version",selection:$original) { Text("Cleaned").tag(false); Text("Original").tag(true) }.pickerStyle(.segmented)
             ScrollView { Text(original ? model.lastRaw : model.lastText).textSelection(.enabled).frame(maxWidth:.infinity,alignment:.leading).padding(18) }.frame(minHeight:180,maxHeight:350).background(.quaternary.opacity(0.4),in:RoundedRectangle(cornerRadius:10))
-            HStack { Text("Processed entirely on this Mac").font(.caption).foregroundStyle(.secondary); Spacer(); Button("Copy text") { InsertionService.copy(original ? model.lastRaw:model.lastText) }.buttonStyle(FlowActionStyle()) }
+            HStack {
+                Text("Processed entirely on this Mac").font(.caption).foregroundStyle(.secondary)
+                Spacer()
+                Button("Save as note") { model.createNote(text:original ? model.lastRaw:model.lastText); model.showTranscript=false }
+                Button("Copy text") { InsertionService.copy(original ? model.lastRaw:model.lastText) }.buttonStyle(FlowActionStyle())
+            }
         }.padding(30).frame(width:590)
     }
 }

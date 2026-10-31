@@ -102,6 +102,63 @@ final class LocalStoreTests: XCTestCase {
         data.enforceRetention();XCTAssertEqual(data.history.count,1)
         data.preferences.retention = .off;data.enforceRetention();XCTAssertTrue(data.history.isEmpty)
     }
+    func testNotesAndSelectionSurviveRestartWithHistoryDisabled() throws {
+        let store=try LocalStore(directory:directory)
+        var data=UserData(); data.preferences.retention = .off
+        let first=data.createNote(text:"An English draft")
+        let second=data.createNote(text:"Een Nederlandse notitie")
+        data.preferences.selectedNoteID=first
+        data.updateNote(id:first,title:"Renamed draft",text:"Edited text",now:Date(timeIntervalSince1970:123))
+        data.enforceRetention(); try store.save(data)
+        let reopened=try LocalStore(directory:directory).load()
+        XCTAssertEqual(reopened.notes.count,2)
+        XCTAssertEqual(reopened.preferences.selectedNoteID,first)
+        XCTAssertEqual(reopened.notes.first{$0.id==first}?.updatedAt,Date(timeIntervalSince1970:123))
+        XCTAssertEqual(reopened.notes.first{$0.id==first}?.title,"Renamed draft")
+        XCTAssertEqual(reopened.notes.first{$0.id==second}?.text,"Een Nederlandse notitie")
+    }
+    func testDictationKeepsOriginalNoteDestinationAfterSelectionChanges() {
+        var data=UserData()
+        let target=data.createNote(text:"First thought")
+        let other=data.createNote(text:"Other note")
+        data.updateNote(id:target,text:"Edited while recording")
+        XCTAssertTrue(data.appendToNote(id:target,text:"Next thought"))
+        XCTAssertEqual(data.notes.first{$0.id==target}?.text,"Edited while recording\nNext thought")
+        XCTAssertEqual(data.notes.first{$0.id==other}?.text,"Other note")
+        data.deleteNote(id:target)
+        XCTAssertFalse(data.appendToNote(id:target,text:"Late transcript"))
+        XCTAssertEqual(data.notes.count,1)
+        XCTAssertEqual(data.preferences.selectedNoteID,other)
+        data.deleteNote(id:other)
+        XCTAssertNil(data.preferences.selectedNoteID)
+    }
+    func testOlderPreferencesWithoutNoteSelectionDecode() throws {
+        let encoded=try JSONEncoder().encode(Preferences())
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:encoded) as? [String:Any])
+        json.removeValue(forKey:"selectedNoteID")
+        let decoded=try JSONDecoder().decode(Preferences.self,from:JSONSerialization.data(withJSONObject:json))
+        XCTAssertNil(decoded.selectedNoteID)
+    }
+    func testRestoreStopsWhenBackupCannotBeWritten() throws {
+        let store=try LocalStore(directory:directory)
+        var current=UserData(); current.createNote(text:"Keep this note"); try store.save(current)
+        var replacement=UserData(); replacement.createNote(text:"Replacement")
+        let source=directory.appendingPathComponent("import.json"); try store.export(replacement,to:source)
+        let unavailable=directory.appendingPathComponent("missing/backup.json")
+        XCTAssertThrowsError(try store.restore(from:source,backingUp:current,to:unavailable))
+        XCTAssertEqual(try store.load().notes,current.notes)
+    }
+    func testRestorePreservesCurrentNotesInBackupBeforeReplacement() throws {
+        let store=try LocalStore(directory:directory)
+        var current=UserData(); current.createNote(text:"Keep in backup"); current.notes[0].updatedAt=Date(timeIntervalSince1970:100); try store.save(current)
+        var replacement=UserData(); replacement.createNote(text:"Restored note"); replacement.notes[0].updatedAt=Date(timeIntervalSince1970:200)
+        let source=directory.appendingPathComponent("import.json"), backup=directory.appendingPathComponent("before.json")
+        try store.export(replacement,to:source)
+        let restored=try store.restore(from:source,backingUp:current,to:backup)
+        XCTAssertEqual(restored.notes,replacement.notes)
+        XCTAssertEqual(try store.load().notes,replacement.notes)
+        XCTAssertEqual(try store.importData(from:backup).notes,current.notes)
+    }
     func testFutureSchemaFailsInsteadOfOverwriting() throws {
         let store=try LocalStore(directory:directory);var data=UserData();data.schemaVersion=999;try store.save(data)
         XCTAssertThrowsError(try store.load())

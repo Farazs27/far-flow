@@ -40,7 +40,7 @@ This uses version-dependent private MediaRemote APIs and depends on system Perl 
 
 ## Process lifetime
 
-Closing the main window or choosing Quit cancels work, stops capture and shortcuts, closes the panel, unloads local engines and ends the owned media helper. The termination path allows a bounded unload interval; process exit releases any noncancelable model load. Minimize keeps the app running. Models are stored on disk between launches, but no Far Flow model host remains running after the app exits.
+Closing the single dashboard window leaves the app, global shortcuts and floating panel running. The app retains a SwiftUI scene-opening action so the menu bar, panel and Dock can reopen the dashboard even after its view disappears. Choosing Quit or Command–Q cancels work, stops capture and shortcuts, closes the panel, unloads local engines and ends the owned media helper. The termination path allows a bounded unload interval; process exit releases any noncancelable model load. Close and minimize both keep the app running. Models are stored on disk between launches, but no Far Flow model host remains running after the app exits.
 
 ## Dependencies
 
@@ -50,3 +50,9 @@ Closing the main window or choosing Quit cancels work, stops capture and shortcu
 - Package transitive revisions are recorded in the Xcode workspace's `Package.resolved`.
 
 See [third-party notices](THIRD-PARTY-NOTICES.txt) and [privacy](PRIVACY.md).
+
+## Meetings
+
+Meeting capture is owned by a separate `MeetingController` with the same app lifetime as dictation. ScreenCaptureKit supplies selected-app audio and microphone buffers to a serial callback queue. Continuous converters produce 16 kHz mono samples, with at most 30 seconds buffered per source. Temporary chunks have deterministic source/offset identities. The controller transcribes one chunk at a time with the existing speech actor, commits its segment through the existing SQLite document, then removes its audio. Quit flushes partial chunks and cancels inference; relaunch offers explicit recovery.
+
+Meeting data is an optional addition to `UserData`. Schema 1 upgrades to schema 2 only after writing a safety backup, preventing an older app from silently dropping meeting data. Retention applies only to dictation history. Summaries reuse the writing actor with bounded batches and pairwise reduction; concurrent generation is serialized. No additional inference dependency or remote service is introduced. See [Local meetings](MEETINGS.md).

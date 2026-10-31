@@ -100,18 +100,49 @@ public struct Preferences: Codable, Equatable, Sendable {
     public var barCenterX: Double?
     public var barBottomY: Double?
     public var interfaceRevision: Int?
+    public var selectedNoteID: UUID?
+    public var detectMeetings: Bool?
+    public var meetingLanguage: DictationLanguage?
+    public var automaticMeetingSummary: Bool?
     public init() {}
+
 }
 
 public struct UserData: Codable, Sendable {
-    public var schemaVersion = 1
+    public var schemaVersion = 2
     public var preferences = Preferences()
     public var dictionary: [DictionaryEntry] = [DictionaryEntry(word:"Far Flow",alias:"farflow")]
     public var snippets: [VoiceSnippet] = []
     public var appStyles: [AppStyle] = []
     public var notes: [ScratchNote] = []
+    // Optional so existing databases and backups decode without migration.
+    public var meetings: [Meeting]?
     public var history: [HistoryItem] = []
     public init() {}
+    @discardableResult public mutating func createNote(text: String = "") -> UUID {
+        let title = text.split(whereSeparator: \.isWhitespace).prefix(6).joined(separator: " ")
+        let note = ScratchNote(title: title.isEmpty ? "Untitled note" : String(title.prefix(80)), text: text)
+        notes.insert(note, at: 0)
+        preferences.selectedNoteID = note.id
+        return note.id
+    }
+    public mutating func updateNote(id: UUID, title: String? = nil, text: String? = nil, now: Date = .now) {
+        guard let index = notes.firstIndex(where: { $0.id == id }) else { return }
+        let nextTitle = title ?? notes[index].title, nextText = text ?? notes[index].text
+        guard nextTitle != notes[index].title || nextText != notes[index].text else { return }
+        notes[index].title = nextTitle
+        notes[index].text = nextText
+        notes[index].updatedAt = now
+    }
+    @discardableResult public mutating func appendToNote(id: UUID, text: String, now: Date = .now) -> Bool {
+        guard let note = notes.first(where: { $0.id == id }), !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+        updateNote(id: id, text: note.text + (note.text.isEmpty ? "" : "\n") + text, now: now)
+        return true
+    }
+    public mutating func deleteNote(id: UUID) {
+        notes.removeAll { $0.id == id }
+        if preferences.selectedNoteID == id { preferences.selectedNoteID = notes.first?.id }
+    }
     public mutating func enforceRetention(now: Date = .now) {
         guard let interval = preferences.retention.interval else { return }
         history.removeAll { interval == 0 || $0.createdAt < now.addingTimeInterval(-interval) }
